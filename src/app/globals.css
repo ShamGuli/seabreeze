@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Hide Cesium credit/attribution bar (demo only) */
+.cesium-viewer-bottom {
+  display: none !important;
+}

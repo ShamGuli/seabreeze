@@ -1,0 +1,1067 @@
+[
+  {
+    "id": "school-and-university",
+    "name": "School and university",
+    "longitude": 49.900375,
+    "latitude": 40.576477,
+    "area_ha": 9.2
+  },
+  {
+    "id": "efendi",
+    "name": "Efendi",
+    "longitude": 49.900879,
+    "latitude": 40.57798,
+    "area_ha": 5
+  },
+  {
+    "id": "parking-texniki-zona",
+    "name": "Parking Texniki zona",
+    "longitude": 49.902878,
+    "latitude": 40.576411,
+    "area_ha": 1.5
+  },
+  {
+    "id": "fisher-island",
+    "name": "Fisher Island",
+    "longitude": 49.903797,
+    "latitude": 40.578849,
+    "area_ha": 6.7
+  },
+  {
+    "id": "park-residence-6",
+    "name": "Park Residence 6.",
+    "longitude": 49.905051,
+    "latitude": 40.577065,
+    "area_ha": 7
+  },
+  {
+    "id": "aral-group",
+    "name": "Aral group",
+    "longitude": 49.906304,
+    "latitude": 40.579468,
+    "area_ha": 4
+  },
+  {
+    "id": "park-residences-5",
+    "name": "Park Residences 5",
+    "longitude": 49.908479,
+    "latitude": 40.577943,
+    "area_ha": 6.3
+  },
+  {
+    "id": "skyline-2",
+    "name": "Skyline 2.",
+    "longitude": 49.908512,
+    "latitude": 40.579986,
+    "area_ha": 6.8
+  },
+  {
+    "id": "lot-hyatt-residence",
+    "name": "Lot Hyatt Residence",
+    "longitude": 49.911198,
+    "latitude": 40.580708,
+    "area_ha": 3.75
+  },
+  {
+    "id": "park-residences-4",
+    "name": "Park Residences 4.",
+    "longitude": 49.911958,
+    "latitude": 40.578545,
+    "area_ha": 6.2
+  },
+  {
+    "id": "swiss-hotel",
+    "name": "Swiss Hotel",
+    "longitude": 49.91303,
+    "latitude": 40.581463,
+    "area_ha": 2.7
+  },
+  {
+    "id": "malibu-residence",
+    "name": "Malibu Residence",
+    "longitude": 49.914442,
+    "latitude": 40.579132,
+    "area_ha": 3.4
+  },
+  {
+    "id": "rixos-hotel",
+    "name": "Rixos Hotel",
+    "longitude": 49.915919,
+    "latitude": 40.582885
+  },
+  {
+    "id": "100-villas",
+    "name": "100 Villas",
+    "longitude": 49.916049,
+    "latitude": 40.576081,
+    "area_ha": 7.6
+  },
+  {
+    "id": "prime-residence-2",
+    "name": "Prime Residence 2.",
+    "longitude": 49.916496,
+    "latitude": 40.579231,
+    "area_ha": 0.9
+  },
+  {
+    "id": "casino",
+    "name": "Casino",
+    "longitude": 49.916632,
+    "latitude": 40.58122,
+    "area_ha": 9
+  },
+  {
+    "id": "paradise-residence",
+    "name": "Paradise Residence",
+    "longitude": 49.917994,
+    "latitude": 40.579604,
+    "area_ha": 3
+  },
+  {
+    "id": "dream-fest",
+    "name": "Dream Fest",
+    "longitude": 49.918587,
+    "latitude": 40.583387,
+    "area_ha": 5.5
+  },
+  {
+    "id": "el-saab-residence",
+    "name": "El Saab Residence",
+    "longitude": 49.920008,
+    "latitude": 40.581869,
+    "area_ha": 5.5
+  },
+  {
+    "id": "residential-buildings",
+    "name": "Residential Buildings",
+    "longitude": 49.922328,
+    "latitude": 40.588738,
+    "area_ha": 23.4
+  },
+  {
+    "id": "arabian-ranches",
+    "name": "Arabian Ranches",
+    "longitude": 49.924178,
+    "latitude": 40.58115,
+    "area_ha": 7
+  },
+  {
+    "id": "beach-area",
+    "name": "Beach area",
+    "longitude": 49.924429,
+    "latitude": 40.58567
+  },
+  {
+    "id": "radisson-blu",
+    "name": "Radisson Blu",
+    "longitude": 49.925073,
+    "latitude": 40.583873,
+    "area_ha": 5
+  },
+  {
+    "id": "200-villas",
+    "name": "200 Villas",
+    "longitude": 49.925495,
+    "latitude": 40.579114,
+    "area_ha": 26.1
+  },
+  {
+    "id": "monaco",
+    "name": "Monaco",
+    "longitude": 49.927525,
+    "latitude": 40.581769,
+    "area_ha": 2
+  },
+  {
+    "id": "cipiriani",
+    "name": "Cipiriani",
+    "longitude": 49.929386,
+    "latitude": 40.590651,
+    "area_ha": 2.6
+  },
+  {
+    "id": "five-stones",
+    "name": "Five stones",
+    "longitude": 49.929444,
+    "latitude": 40.585506,
+    "area_ha": 1
+  },
+  {
+    "id": "marina-towers-residence-2",
+    "name": "Marina Towers Residence 2",
+    "longitude": 49.92968,
+    "latitude": 40.582315,
+    "area_ha": 1.81
+  },
+  {
+    "id": "deluxe-residence",
+    "name": "Deluxe Residence",
+    "longitude": 49.930627,
+    "latitude": 40.581736,
+    "area_ha": 3.08
+  },
+  {
+    "id": "sea-view-towers",
+    "name": "Sea View Towers",
+    "longitude": 49.931134,
+    "latitude": 40.580554
+  },
+  {
+    "id": "fitnes",
+    "name": "Fitnes",
+    "longitude": 49.931364,
+    "latitude": 40.577995
+  },
+  {
+    "id": "venetian-harbor",
+    "name": "Venetian Harbor",
+    "longitude": 49.93211,
+    "latitude": 40.584238,
+    "area_ha": 5.8
+  },
+  {
+    "id": "harbour-residence",
+    "name": "Harbour Residence",
+    "longitude": 49.932925,
+    "latitude": 40.58204,
+    "area_ha": 2.5
+  },
+  {
+    "id": "digital-residence",
+    "name": "Digital Residence",
+    "longitude": 49.933222,
+    "latitude": 40.580969
+  },
+  {
+    "id": "park-residence-2",
+    "name": "Park Residence 2.",
+    "longitude": 49.934012,
+    "latitude": 40.576988,
+    "area_ha": 6.8
+  },
+  {
+    "id": "light-house-2",
+    "name": "Light House-2.",
+    "longitude": 49.93444,
+    "latitude": 40.579533,
+    "area_ha": 12
+  },
+  {
+    "id": "sales-office",
+    "name": "Sales office",
+    "longitude": 49.934567,
+    "latitude": 40.58221,
+    "area_ha": 0.2
+  },
+  {
+    "id": "parking",
+    "name": "Parking",
+    "longitude": 49.935244,
+    "latitude": 40.582168,
+    "area_ha": 1.2
+  },
+  {
+    "id": "miami-beach",
+    "name": "Miami beach",
+    "longitude": 49.93528,
+    "latitude": 40.583262,
+    "area_ha": 2.6
+  },
+  {
+    "id": "water-park",
+    "name": "Water park",
+    "longitude": 49.936133,
+    "latitude": 40.578574,
+    "area_ha": 1.9
+  },
+  {
+    "id": "katok",
+    "name": "Katok",
+    "longitude": 49.936151,
+    "latitude": 40.576504,
+    "area_ha": 0.1
+  },
+  {
+    "id": "luna-park",
+    "name": "Luna Park",
+    "longitude": 49.936521,
+    "latitude": 40.577193,
+    "area_ha": 2.3
+  },
+  {
+    "id": "food-court",
+    "name": "Food Court",
+    "longitude": 49.936596,
+    "latitude": 40.583658,
+    "area_ha": 0.15
+  },
+  {
+    "id": "sb-2",
+    "name": "SB 2",
+    "longitude": 49.938056,
+    "latitude": 40.578363
+  },
+  {
+    "id": "sky-park",
+    "name": "Sky Park",
+    "longitude": 49.93846,
+    "latitude": 40.580801,
+    "area_ha": 4.3
+  },
+  {
+    "id": "miami-residence",
+    "name": "Miami Residence",
+    "longitude": 49.938751,
+    "latitude": 40.582768,
+    "area_ha": 6.6
+  },
+  {
+    "id": "park-residence-3",
+    "name": "Park Residence 3.",
+    "longitude": 49.939823,
+    "latitude": 40.578335,
+    "area_ha": 8.6
+  },
+  {
+    "id": "yes-apartments",
+    "name": "Yes Apartments",
+    "longitude": 49.940292,
+    "latitude": 40.576109,
+    "area_ha": 6.3
+  },
+  {
+    "id": "wave",
+    "name": "Wave",
+    "longitude": 49.940469,
+    "latitude": 40.582965
+  },
+  {
+    "id": "port-d-azur",
+    "name": "PORT D AZUR",
+    "longitude": 49.942074,
+    "latitude": 40.581475,
+    "area_ha": 7.8
+  },
+  {
+    "id": "blue-waters",
+    "name": "Blue Waters",
+    "longitude": 49.942506,
+    "latitude": 40.573206,
+    "area_ha": 16.3
+  },
+  {
+    "id": "premium-residence",
+    "name": "Premium Residence",
+    "longitude": 49.942564,
+    "latitude": 40.576641,
+    "area_ha": 2.9
+  },
+  {
+    "id": "monte-carlo-residence",
+    "name": "Monte Carlo Residence",
+    "longitude": 49.943543,
+    "latitude": 40.584206,
+    "area_ha": 7
+  },
+  {
+    "id": "padel-and-tennis-center",
+    "name": "Padel and Tennis Center",
+    "longitude": 49.943927,
+    "latitude": 40.570958
+  },
+  {
+    "id": "garden-shop",
+    "name": "Garden shop",
+    "longitude": 49.94488,
+    "latitude": 40.570019
+  },
+  {
+    "id": "brabus",
+    "name": "Brabus",
+    "longitude": 49.945052,
+    "latitude": 40.588881,
+    "area_ha": 3.8
+  },
+  {
+    "id": "yeni-anbar-razisi",
+    "name": "Yeni Anbar ərazisi",
+    "longitude": 49.945548,
+    "latitude": 40.576562,
+    "area_ha": 2.4
+  },
+  {
+    "id": "marina-yacht-club",
+    "name": "Marina yacht club",
+    "longitude": 49.945575,
+    "latitude": 40.585728,
+    "area_ha": 4.5
+  },
+  {
+    "id": "nobu",
+    "name": "Nobu",
+    "longitude": 49.946377,
+    "latitude": 40.588398,
+    "area_ha": 2.21
+  },
+  {
+    "id": "marina-village-1-residence",
+    "name": "Marina Village 1 Residence",
+    "longitude": 49.946695,
+    "latitude": 40.583932,
+    "area_ha": 5
+  },
+  {
+    "id": "renessans-towers",
+    "name": "Renessans Towers",
+    "longitude": 49.946851,
+    "latitude": 40.578549
+  },
+  {
+    "id": "marina-village-montenegro",
+    "name": "Marina Village (Montenegro).",
+    "longitude": 49.948463,
+    "latitude": 40.585177,
+    "area_ha": 6.81
+  },
+  {
+    "id": "riviera-residence",
+    "name": "Riviera Residence",
+    "longitude": 49.950764,
+    "latitude": 40.585817,
+    "area_ha": 2.2
+  },
+  {
+    "id": "palm-beach",
+    "name": "Palm beach",
+    "longitude": 49.951752,
+    "latitude": 40.585741,
+    "area_ha": 4
+  },
+  {
+    "id": "gardens-residences",
+    "name": "Gardens Residences",
+    "longitude": 49.953393,
+    "latitude": 40.586221,
+    "area_ha": 4.5
+  },
+  {
+    "id": "staff-house-2",
+    "name": "Staff house-2",
+    "longitude": 49.953613,
+    "latitude": 40.584454,
+    "area_ha": 0.02
+  },
+  {
+    "id": "staff-house-1",
+    "name": "Staff house -1",
+    "longitude": 49.954101,
+    "latitude": 40.584567,
+    "area_ha": 0.02
+  },
+  {
+    "id": "palazzo-del-mare",
+    "name": "Palazzo Del Mare",
+    "longitude": 49.955376,
+    "latitude": 40.586286,
+    "area_ha": 3.6
+  },
+  {
+    "id": "83-kotec",
+    "name": "83 kotec",
+    "longitude": 49.956647,
+    "latitude": 40.583984,
+    "area_ha": 7.4
+  },
+  {
+    "id": "niki-beach",
+    "name": "Niki beach",
+    "longitude": 49.957112,
+    "latitude": 40.590785,
+    "area_ha": 1.7
+  },
+  {
+    "id": "niki-willas",
+    "name": "Niki willas",
+    "longitude": 49.95729,
+    "latitude": 40.588897,
+    "area_ha": 0.5
+  },
+  {
+    "id": "prime-residence",
+    "name": "Prime residence",
+    "longitude": 49.95732,
+    "latitude": 40.586185,
+    "area_ha": 3.7
+  },
+  {
+    "id": "neo-city",
+    "name": "Neo City",
+    "longitude": 49.957766,
+    "latitude": 40.587973,
+    "area_ha": 1.3
+  },
+  {
+    "id": "villalar",
+    "name": "Villalar",
+    "longitude": 49.95779,
+    "latitude": 40.582769,
+    "area_ha": 8.1
+  },
+  {
+    "id": "44-kotec",
+    "name": "44 kotec",
+    "longitude": 49.958618,
+    "latitude": 40.584334,
+    "area_ha": 3
+  },
+  {
+    "id": "modern-willas",
+    "name": "Modern willas",
+    "longitude": 49.958681,
+    "latitude": 40.586452,
+    "area_ha": 1.7
+  },
+  {
+    "id": "dream-hotel",
+    "name": "Dream Hotel",
+    "longitude": 49.958824,
+    "latitude": 40.588406,
+    "area_ha": 1.3
+  },
+  {
+    "id": "25-kotec",
+    "name": "25 kotec",
+    "longitude": 49.959636,
+    "latitude": 40.58649,
+    "area_ha": 1.9
+  },
+  {
+    "id": "20-kotec",
+    "name": "20 kotec",
+    "longitude": 49.96069,
+    "latitude": 40.584496,
+    "area_ha": 2.4
+  },
+  {
+    "id": "glamp",
+    "name": "Glamp",
+    "longitude": 49.960972,
+    "latitude": 40.590576,
+    "area_ha": 0.7
+  },
+  {
+    "id": "modern-villa",
+    "name": "Modern villa",
+    "longitude": 49.962074,
+    "latitude": 40.584962,
+    "area_ha": 2.5
+  },
+  {
+    "id": "skyline",
+    "name": "Skyline",
+    "longitude": 49.962873,
+    "latitude": 40.589508,
+    "area_ha": 1
+  },
+  {
+    "id": "ellipse",
+    "name": "Ellipse",
+    "longitude": 49.963495,
+    "latitude": 40.588734,
+    "area_ha": 16.4
+  },
+  {
+    "id": "cayxana",
+    "name": "Cayxana",
+    "longitude": 49.964487,
+    "latitude": 40.590595,
+    "area_ha": 0.3
+  },
+  {
+    "id": "sb-1",
+    "name": "SB 1",
+    "longitude": 49.965302,
+    "latitude": 40.590581
+  },
+  {
+    "id": "sb-5-willas",
+    "name": "SB-5 willas",
+    "longitude": 49.965351,
+    "latitude": 40.585012,
+    "area_ha": 9.5
+  },
+  {
+    "id": "caspian-dream-liner",
+    "name": "Caspian Dream Liner",
+    "longitude": 49.965767,
+    "latitude": 40.595093,
+    "area_ha": 5.4
+  },
+  {
+    "id": "sb-cons-office",
+    "name": "SB cons office",
+    "longitude": 49.965769,
+    "latitude": 40.590723,
+    "area_ha": 0.6
+  },
+  {
+    "id": "wood-willas",
+    "name": "Wood willas",
+    "longitude": 49.967553,
+    "latitude": 40.58562,
+    "area_ha": 1.8
+  },
+  {
+    "id": "polo-residence",
+    "name": "Polo residence",
+    "longitude": 49.968567,
+    "latitude": 40.58741,
+    "area_ha": 5.3
+  },
+  {
+    "id": "sb-4-willas",
+    "name": "SB-4 willas",
+    "longitude": 49.969929,
+    "latitude": 40.589809,
+    "area_ha": 10
+  },
+  {
+    "id": "caspi-mayr",
+    "name": "Caspi Mayr",
+    "longitude": 49.971836,
+    "latitude": 40.589444,
+    "area_ha": 0.6
+  },
+  {
+    "id": "h-mid-restoran",
+    "name": "Həmid Restoran",
+    "longitude": 49.972727,
+    "latitude": 40.58925,
+    "area_ha": 0.45
+  },
+  {
+    "id": "white-residence",
+    "name": "White residence",
+    "longitude": 49.973048,
+    "latitude": 40.590105,
+    "area_ha": 0.6
+  },
+  {
+    "id": "famous-yunan-restorani",
+    "name": "Famous Yunan restorani",
+    "longitude": 49.9732,
+    "latitude": 40.591876,
+    "area_ha": 0.6
+  },
+  {
+    "id": "white-willas-2",
+    "name": "White willas 2.",
+    "longitude": 49.973342,
+    "latitude": 40.590799,
+    "area_ha": 1.3
+  },
+  {
+    "id": "fhn",
+    "name": "FHN",
+    "longitude": 49.974593,
+    "latitude": 40.591328,
+    "area_ha": 0.03
+  },
+  {
+    "id": "del-verde",
+    "name": "Del Verde",
+    "longitude": 49.974683,
+    "latitude": 40.588282,
+    "area_ha": 0.4
+  },
+  {
+    "id": "del-rosa",
+    "name": "Del Rosa",
+    "longitude": 49.975183,
+    "latitude": 40.587689,
+    "area_ha": 0.4
+  },
+  {
+    "id": "sea-breeze-3-willas",
+    "name": "Sea breeze 3 willas",
+    "longitude": 49.975294,
+    "latitude": 40.589491,
+    "area_ha": 6.3
+  },
+  {
+    "id": "beach-club",
+    "name": "Beach club",
+    "longitude": 49.975311,
+    "latitude": 40.588522,
+    "area_ha": 0.5
+  },
+  {
+    "id": "garden-kotec",
+    "name": "Garden kotec",
+    "longitude": 49.976045,
+    "latitude": 40.587916,
+    "area_ha": 0.4
+  },
+  {
+    "id": "del-ventus",
+    "name": "Del Ventus",
+    "longitude": 49.976462,
+    "latitude": 40.587346,
+    "area_ha": 0.4
+  },
+  {
+    "id": "garden-kotec",
+    "name": "Garden kotec",
+    "longitude": 49.976544,
+    "latitude": 40.588451,
+    "area_ha": 0.7
+  },
+  {
+    "id": "kabab",
+    "name": "Kababçı",
+    "longitude": 49.976621,
+    "latitude": 40.592023,
+    "area_ha": 0.06
+  },
+  {
+    "id": "del-vita",
+    "name": "Del Vita",
+    "longitude": 49.977237,
+    "latitude": 40.587723,
+    "area_ha": 0.36
+  },
+  {
+    "id": "beerbasha",
+    "name": "BeerBasha",
+    "longitude": 49.9781,
+    "latitude": 40.592238,
+    "area_ha": 0.1
+  },
+  {
+    "id": "maize",
+    "name": "Maize",
+    "longitude": 49.978765,
+    "latitude": 40.592254,
+    "area_ha": 0.57
+  },
+  {
+    "id": "8-willas",
+    "name": "8 willas",
+    "longitude": 49.979154,
+    "latitude": 40.588887,
+    "area_ha": 0.5
+  },
+  {
+    "id": "cigars",
+    "name": "Cigars",
+    "longitude": 49.9794,
+    "latitude": 40.591902,
+    "area_ha": 0.01
+  },
+  {
+    "id": "cofemania",
+    "name": "Cofemania",
+    "longitude": 49.979525,
+    "latitude": 40.591919,
+    "area_ha": 0.009
+  },
+  {
+    "id": "de-luna-kotec",
+    "name": "De luna kotec",
+    "longitude": 49.980145,
+    "latitude": 40.588333,
+    "area_ha": 0.36
+  },
+  {
+    "id": "desol",
+    "name": "Desol",
+    "longitude": 49.980228,
+    "latitude": 40.588758,
+    "area_ha": 0.37
+  },
+  {
+    "id": "karting",
+    "name": "Karting",
+    "longitude": 49.980233,
+    "latitude": 40.591522,
+    "area_ha": 0.2
+  },
+  {
+    "id": "derma",
+    "name": "Derma",
+    "longitude": 49.980525,
+    "latitude": 40.592248,
+    "area_ha": 0.004
+  },
+  {
+    "id": "teayoume",
+    "name": "TEAYOUME",
+    "longitude": 49.980627,
+    "latitude": 40.592252,
+    "area_ha": 0.004
+  },
+  {
+    "id": "smash",
+    "name": "SMASH",
+    "longitude": 49.980711,
+    "latitude": 40.592263,
+    "area_ha": 0.002
+  },
+  {
+    "id": "lucapolare",
+    "name": "LUCAPOLARE",
+    "longitude": 49.980785,
+    "latitude": 40.592275,
+    "area_ha": 0.002
+  },
+  {
+    "id": "sb-2-willas-qaradok",
+    "name": "SB-2 willas qaradok",
+    "longitude": 49.980845,
+    "latitude": 40.589922,
+    "area_ha": 16
+  },
+  {
+    "id": "doner",
+    "name": "Doner",
+    "longitude": 49.980865,
+    "latitude": 40.592279,
+    "area_ha": 0.003
+  },
+  {
+    "id": "teabreeze",
+    "name": "TeaBreeze",
+    "longitude": 49.980969,
+    "latitude": 40.591546,
+    "area_ha": 0.3
+  },
+  {
+    "id": "de-luna",
+    "name": "De Luna",
+    "longitude": 49.981161,
+    "latitude": 40.588175,
+    "area_ha": 0.3
+  },
+  {
+    "id": "okids",
+    "name": "OKIDS",
+    "longitude": 49.981556,
+    "latitude": 40.592025,
+    "area_ha": 0.1
+  },
+  {
+    "id": "fish-box",
+    "name": "Fish box",
+    "longitude": 49.98163,
+    "latitude": 40.591492,
+    "area_ha": 0.2
+  },
+  {
+    "id": "gloria-jeans",
+    "name": "Gloria Jeans",
+    "longitude": 49.981885,
+    "latitude": 40.592059
+  },
+  {
+    "id": "white-willa-1",
+    "name": "White willa -1.",
+    "longitude": 49.982664,
+    "latitude": 40.591041,
+    "area_ha": 1.1
+  },
+  {
+    "id": "sport-complex",
+    "name": "Sport complex",
+    "longitude": 49.982976,
+    "latitude": 40.588572,
+    "area_ha": 0.27
+  },
+  {
+    "id": "rose-bar",
+    "name": "Rose bar",
+    "longitude": 49.983225,
+    "latitude": 40.591562,
+    "area_ha": 0.2
+  },
+  {
+    "id": "6-kotec",
+    "name": "6 kotec",
+    "longitude": 49.983543,
+    "latitude": 40.587947,
+    "area_ha": 0.2
+  },
+  {
+    "id": "funzilla",
+    "name": "Funzilla",
+    "longitude": 49.983757,
+    "latitude": 40.591514,
+    "area_ha": 0.02
+  },
+  {
+    "id": "la-mer",
+    "name": "La Mer",
+    "longitude": 49.983759,
+    "latitude": 40.58733,
+    "area_ha": 0.79
+  },
+  {
+    "id": "event-hall",
+    "name": "Event hall",
+    "longitude": 49.984495,
+    "latitude": 40.59244,
+    "area_ha": 0.45
+  },
+  {
+    "id": "otel-shor-house",
+    "name": "Otel Shor House",
+    "longitude": 49.984668,
+    "latitude": 40.591432,
+    "area_ha": 1
+  },
+  {
+    "id": "park-residence-1",
+    "name": "Park residence-1.",
+    "longitude": 49.984706,
+    "latitude": 40.588325,
+    "area_ha": 1.67
+  },
+  {
+    "id": "post-74",
+    "name": "Post -74",
+    "longitude": 49.984813,
+    "latitude": 40.586935,
+    "area_ha": 0.08
+  },
+  {
+    "id": "inzibati-bina",
+    "name": "Inzibati bina",
+    "longitude": 49.985095,
+    "latitude": 40.590588,
+    "area_ha": 0.06
+  },
+  {
+    "id": "town-house",
+    "name": "Town house",
+    "longitude": 49.98576,
+    "latitude": 40.590717,
+    "area_ha": 0.9
+  },
+  {
+    "id": "beach-club",
+    "name": "Beach club",
+    "longitude": 49.985798,
+    "latitude": 40.592046,
+    "area_ha": 0.7
+  },
+  {
+    "id": "light-house-1",
+    "name": "Light house-1.",
+    "longitude": 49.98619,
+    "latitude": 40.589859,
+    "area_ha": 0.24
+  },
+  {
+    "id": "ozel",
+    "name": "Ozel",
+    "longitude": 49.986503,
+    "latitude": 40.58923,
+    "area_ha": 0.8
+  },
+  {
+    "id": "light-house-2",
+    "name": "Light house-2.",
+    "longitude": 49.986792,
+    "latitude": 40.590551,
+    "area_ha": 0.28
+  },
+  {
+    "id": "canyone-residence",
+    "name": "Canyone Residence",
+    "longitude": 49.986907,
+    "latitude": 40.586476
+  },
+  {
+    "id": "light-house-3",
+    "name": "Light house-3.",
+    "longitude": 49.987379,
+    "latitude": 40.589741,
+    "area_ha": 0.18
+  },
+  {
+    "id": "light-house-mall",
+    "name": "Light house mall",
+    "longitude": 49.987392,
+    "latitude": 40.588574,
+    "area_ha": 0.22
+  },
+  {
+    "id": "grand-hotel",
+    "name": "Grand hotel",
+    "longitude": 49.987528,
+    "latitude": 40.591778,
+    "area_ha": 1
+  },
+  {
+    "id": "light-house-4",
+    "name": "Light house- 4.",
+    "longitude": 49.987557,
+    "latitude": 40.589145,
+    "area_ha": 0.17
+  },
+  {
+    "id": "grand-willas",
+    "name": "Grand willas",
+    "longitude": 49.988318,
+    "latitude": 40.592667,
+    "area_ha": 0.33
+  },
+  {
+    "id": "parking",
+    "name": "Parking",
+    "longitude": 49.988616,
+    "latitude": 40.589601,
+    "area_ha": 0.42
+  },
+  {
+    "id": "azerisiq-qazanxana",
+    "name": "Azerisiq/qazanxana",
+    "longitude": 49.988647,
+    "latitude": 40.59092,
+    "area_ha": 0.32
+  },
+  {
+    "id": "vip",
+    "name": "VIP",
+    "longitude": 49.990216,
+    "latitude": 40.592232,
+    "area_ha": 3.1
+  },
+  {
+    "id": "nardaran-anbar",
+    "name": "Nardaran anbar",
+    "longitude": 49.991373,
+    "latitude": 40.591434,
+    "area_ha": 0.18
+  },
+  {
+    "id": "gta-sklat-ve-svarka",
+    "name": "GTA sklat ve svarka",
+    "longitude": 49.991653,
+    "latitude": 40.590026,
+    "area_ha": 0.9
+  },
+  {
+    "id": "cube-otel",
+    "name": "Cube otel",
+    "longitude": 49.992468,
+    "latitude": 40.58873,
+    "area_ha": 2.16
+  },
+  {
+    "id": "avot-qaraj",
+    "name": "Avot qaraj",
+    "longitude": 49.992635,
+    "latitude": 40.58893,
+    "area_ha": 0.08
+  }
+]
