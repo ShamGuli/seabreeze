@@ -66,13 +66,6 @@ export async function loadIonTileset(
   });
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
 
-  // Version-safe lighting improvements
-  try {
-    if (tileset.imageBasedLighting) {
-      tileset.imageBasedLighting.imageBasedLightingFactor = new Cesium.Cartesian2(1.2, 1.2);
-    }
-  } catch (e) { console.warn('imageBasedLighting not supported'); }
-
   // Push model down to hide built-in ground plane beneath satellite imagery
   if (heightOffset !== 0) {
     const center = tileset.boundingSphere.center;

@@ -53,27 +53,10 @@ export default function CesiumMap() {
 
     // Globe & scene settings
     v.scene.globe.depthTestAgainstTerrain = false;
-    v.scene.globe.enableLighting = true;
-    v.scene.highDynamicRange = true;
-
-    // Version-safe directional light
-    try {
-      if (Cesium.DirectionalLight) {
-        v.scene.light = new Cesium.DirectionalLight({
-          direction: new Cesium.Cartesian3(0.35, -0.2, -0.9),
-          color: Cesium.Color.WHITE,
-          intensity: 1.5,
-        });
-      }
-    } catch (e) { console.warn('DirectionalLight not supported'); }
 
     v.scene.fog.enabled = true;
     v.scene.fog.density = 0.0003;
     if (v.scene.skyAtmosphere) v.scene.skyAtmosphere.show = true;
-
-    // Golden hour lighting (July evening, Baku)
-    v.clock.currentTime = Cesium.JulianDate.fromIso8601('2025-07-15T15:00:00Z');
-    v.clock.shouldAnimate = false;
 
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
