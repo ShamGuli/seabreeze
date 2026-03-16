@@ -19,6 +19,7 @@ export interface IonModelDef {
   tokenKey: string;
   longitude: number;
   latitude: number;
+  heightOffset?: number;
 }
 
 export const ION_MODELS: IonModelDef[] = [
@@ -31,28 +32,12 @@ export const ION_MODELS: IonModelDef[] = [
     latitude: 40.588146,
   },
   {
-    id: 'montenegro',
-    name: 'Montenegro',
-    assetId: 4346739,
+    id: 'eva',
+    name: 'EVA',
+    assetId: 4525522,
     tokenKey: 'TOKEN_1',
-    longitude: 49.949684,
-    latitude: 40.585082,
-  },
-  {
-    id: 'brabus-land',
-    name: 'Brabus Land',
-    assetId: 4367726,
-    tokenKey: 'TOKEN_2',
-    longitude: 49.944642,
-    latitude: 40.587625,
-  },
-  {
-    id: 'brabus-bina',
-    name: 'Brabus Bina',
-    assetId: 4367733,
-    tokenKey: 'TOKEN_2',
-    longitude: 49.944642,
-    latitude: 40.587625,
+    longitude: 49.967888,
+    latitude: 40.591375,
   },
 ];
 
@@ -74,21 +59,32 @@ export async function loadIonTileset(
   assetId: number,
   token: string,
   name: string,
+  heightOffset: number = 0,
 ): Promise<Cesium.Cesium3DTileset> {
   const resource = await Cesium.IonResource.fromAssetId(assetId, {
     accessToken: token,
   });
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
 
-  // Force all materials fully opaque — no see-through glass
-  tileset.customShader = new Cesium.CustomShader({
-    translucencyMode: Cesium.CustomShaderTranslucencyMode.OPAQUE,
-    fragmentShaderText: `
-      void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
-        material.alpha = 1.0;
-      }
-    `,
-  });
+  // Version-safe lighting improvements
+  try {
+    if (tileset.imageBasedLighting) {
+      tileset.imageBasedLighting.imageBasedLightingFactor = new Cesium.Cartesian2(1.2, 1.2);
+    }
+  } catch (e) { console.warn('imageBasedLighting not supported'); }
+
+  // Push model down to hide built-in ground plane beneath satellite imagery
+  if (heightOffset !== 0) {
+    const center = tileset.boundingSphere.center;
+    const carto = Cesium.Cartographic.fromCartesian(center);
+    const adjusted = Cesium.Cartesian3.fromRadians(
+      carto.longitude,
+      carto.latitude,
+      carto.height + heightOffset,
+    );
+    const offset = Cesium.Cartesian3.subtract(adjusted, center, new Cesium.Cartesian3());
+    tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+  }
 
   viewer.scene.primitives.add(tileset);
 

@@ -15,6 +15,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
   const entityMapRef = useRef<Map<string, Cesium.Entity>>(new Map());
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
   const activeCategory = useMapStore((s) => s.activeCategory);
+  const markersHidden = useMapStore((s) => s.markersHidden);
 
   // Create entities once
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     };
   }, [viewer, setSelectedBuilding]);
 
-  // Filter entities by active category
+  // Filter entities by active category or hide all
   useEffect(() => {
     const map = entityMapRef.current;
     if (map.size === 0) return;
@@ -89,9 +90,13 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     for (const building of buildings) {
       const entity = map.get(building.id);
       if (!entity) continue;
-      entity.show = activeCategory === null || building.category === activeCategory;
+      if (markersHidden) {
+        entity.show = false;
+      } else {
+        entity.show = activeCategory === null || building.category === activeCategory;
+      }
     }
-  }, [activeCategory]);
+  }, [activeCategory, markersHidden]);
 
   return null;
 }

@@ -26,7 +26,7 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
       for (const model of ION_MODELS) {
         try {
           const token = getToken(model.tokenKey);
-          await loadIonTileset(viewer, model.assetId, token, model.name);
+          await loadIonTileset(viewer, model.assetId, token, model.name, model.heightOffset ?? 0);
         } catch (err) {
           console.error(`Failed to load ${model.name}:`, err);
         }
