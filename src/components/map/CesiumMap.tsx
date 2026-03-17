@@ -60,20 +60,6 @@ export default function CesiumMap() {
     v.scene.fog.density = 0.0003;
     if (v.scene.skyAtmosphere) v.scene.skyAtmosphere.show = true;
 
-    // Lighting — makes 3D models look realistic instead of flat/grey
-    v.scene.light = new Cesium.SunLight({ intensity: 2.2 });
-    v.scene.highDynamicRange = true;
-    v.scene.gamma = 1.0;
-    v.shadows = true;
-    v.shadowMap.softShadows = true;
-    v.shadowMap.darkness = 0.6;
-
-    // Post-processing — ambient occlusion for depth
-    const ao = v.scene.postProcessStages.ambientOcclusion;
-    ao.enabled = true;
-    ao.uniforms.intensity = 3.0;
-    ao.uniforms.bias = 0.1;
-
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
     ctrl.minimumZoomDistance = 10;

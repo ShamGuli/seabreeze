@@ -87,17 +87,6 @@ export async function loadIonTileset(
     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
   }
 
-  // PBR custom shader — boost diffuse color + subtle emissive
-  tileset.customShader = new Cesium.CustomShader({
-    lightingModel: Cesium.LightingModel.PBR,
-    fragmentShaderText: `
-      void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
-        material.diffuse *= 1.3;
-        material.emissive = material.diffuse * 0.15;
-      }
-    `,
-  });
-
   viewer.scene.primitives.add(tileset);
 
   console.log(`Loaded Ion tileset: ${name} (asset ${assetId})`);
