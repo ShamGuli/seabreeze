@@ -39,6 +39,14 @@ export const ION_MODELS: IonModelDef[] = [
     longitude: 49.967888,
     latitude: 40.591375,
   },
+  {
+    id: 'digital',
+    name: 'Digital Residence',
+    assetId: 4537132,
+    tokenKey: 'TOKEN_2',
+    longitude: 49.955,
+    latitude: 40.590,
+  },
 ];
 
 // Skypark local model definition
@@ -78,6 +86,33 @@ export async function loadIonTileset(
     const offset = Cesium.Cartesian3.subtract(adjusted, center, new Cesium.Cartesian3());
     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
   }
+
+  // Image-based lighting for realistic PBR rendering
+  tileset.imageBasedLighting = new Cesium.ImageBasedLighting({
+    luminanceAtZenith: 0.7,
+    sphericalHarmonicCoefficients: [
+      new Cesium.Cartesian3(0.8, 0.8, 0.85),
+      new Cesium.Cartesian3(0.3, 0.3, 0.35),
+      new Cesium.Cartesian3(0.2, 0.2, 0.2),
+      new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+      new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+      new Cesium.Cartesian3(0.1, 0.1, 0.1),
+      new Cesium.Cartesian3(0.05, 0.05, 0.05),
+      new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+      new Cesium.Cartesian3(0.1, 0.1, 0.1),
+    ],
+  });
+
+  // PBR custom shader — boost diffuse color + subtle emissive
+  tileset.customShader = new Cesium.CustomShader({
+    lightingModel: Cesium.LightingModel.PBR,
+    fragmentShaderText: `
+      void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
+        material.diffuse *= 1.3;
+        material.emissive = material.diffuse * 0.15;
+      }
+    `,
+  });
 
   viewer.scene.primitives.add(tileset);
 

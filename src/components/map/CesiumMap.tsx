@@ -14,11 +14,13 @@ import BuildingMarkers, { flyToBuilding } from './BuildingMarkers';
 import Sidebar from '../ui/Sidebar';
 import SearchBar from '../ui/SearchBar';
 import CategoryFilter from '../ui/CategoryFilter';
+import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
+  const setFlyToOverview = useMapStore((s) => s.setFlyToOverview);
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) return;
@@ -58,6 +60,20 @@ export default function CesiumMap() {
     v.scene.fog.density = 0.0003;
     if (v.scene.skyAtmosphere) v.scene.skyAtmosphere.show = true;
 
+    // Lighting — makes 3D models look realistic instead of flat/grey
+    v.scene.light = new Cesium.SunLight({ intensity: 2.2 });
+    v.scene.highDynamicRange = true;
+    v.scene.gamma = 1.0;
+    v.shadows = true;
+    v.shadowMap.softShadows = true;
+    v.shadowMap.darkness = 0.6;
+
+    // Post-processing — ambient occlusion for depth
+    const ao = v.scene.postProcessStages.ambientOcclusion;
+    ao.enabled = true;
+    ao.uniforms.intensity = 3.0;
+    ao.uniforms.bias = 0.1;
+
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
     ctrl.minimumZoomDistance = 10;
@@ -86,6 +102,21 @@ export default function CesiumMap() {
 
     viewerRef.current = v;
     setViewer(v);
+
+    // Register flyToOverview in store
+    setFlyToOverview(() => {
+      if (v && !v.isDestroyed()) {
+        v.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(49.950, 40.584, 5000),
+          orientation: {
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-90),
+            roll: 0,
+          },
+          duration: 1.5,
+        });
+      }
+    });
 
     return () => {
       if (viewerRef.current && !viewerRef.current.isDestroyed()) {

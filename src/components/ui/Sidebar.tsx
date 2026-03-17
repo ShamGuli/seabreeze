@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Sidebar() {
   const building = useMapStore((s) => s.selectedBuilding);
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
+  const flyToOverview = useMapStore((s) => s.flyToOverview);
 
   return (
     <AnimatePresence>
@@ -70,7 +71,10 @@ export default function Sidebar() {
               </span>
             </div>
             <button
-              onClick={() => setSelectedBuilding(null)}
+              onClick={() => {
+                setSelectedBuilding(null);
+                flyToOverview?.();
+              }}
               style={{
                 background: 'rgba(255,255,255,0.1)',
                 border: 'none',
