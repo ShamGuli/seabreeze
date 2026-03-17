@@ -87,6 +87,33 @@ export async function loadIonTileset(
     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
   }
 
+  // PBR lighting shader — makes models look realistic instead of flat/grey
+  tileset.customShader = new Cesium.CustomShader({
+    lightingModel: Cesium.LightingModel.PBR,
+    fragmentShaderText: `
+      void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
+        material.diffuse *= 1.3;
+        material.emissive = material.diffuse * 0.15;
+      }
+    `,
+  });
+
+  // Image-based lighting with spherical harmonics
+  const ibl = new Cesium.ImageBasedLighting();
+  ibl.imageBasedLightingFactor = new Cesium.Cartesian2(1.0, 1.0);
+  ibl.sphericalHarmonicCoefficients = [
+    new Cesium.Cartesian3(0.8, 0.8, 0.85),
+    new Cesium.Cartesian3(0.3, 0.3, 0.35),
+    new Cesium.Cartesian3(0.2, 0.2, 0.2),
+    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+    new Cesium.Cartesian3(0.1, 0.1, 0.1),
+    new Cesium.Cartesian3(0.05, 0.05, 0.05),
+    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
+    new Cesium.Cartesian3(0.1, 0.1, 0.1),
+  ];
+  tileset.imageBasedLighting = ibl;
+
   viewer.scene.primitives.add(tileset);
 
   console.log(`Loaded Ion tileset: ${name} (asset ${assetId})`);
