@@ -87,22 +87,6 @@ export async function loadIonTileset(
     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
   }
 
-  // Image-based lighting for realistic PBR rendering
-  const ibl = new Cesium.ImageBasedLighting();
-  ibl.luminanceAtZenith = 0.7;
-  ibl.sphericalHarmonicCoefficients = [
-    new Cesium.Cartesian3(0.8, 0.8, 0.85),
-    new Cesium.Cartesian3(0.3, 0.3, 0.35),
-    new Cesium.Cartesian3(0.2, 0.2, 0.2),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(0.1, 0.1, 0.1),
-    new Cesium.Cartesian3(0.05, 0.05, 0.05),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(0.1, 0.1, 0.1),
-  ];
-  tileset.imageBasedLighting = ibl;
-
   // PBR custom shader — boost diffuse color + subtle emissive
   tileset.customShader = new Cesium.CustomShader({
     lightingModel: Cesium.LightingModel.PBR,
