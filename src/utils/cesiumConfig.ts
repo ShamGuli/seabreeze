@@ -56,6 +56,14 @@ export const ION_MODELS: IonModelDef[] = [
     longitude: 49.950,
     latitude: 40.585,
   },
+  {
+    id: 'building-4540015',
+    name: 'Building 4540015',
+    assetId: 4540015,
+    tokenKey: 'TOKEN_3',
+    longitude: 49.950,
+    latitude: 40.585,
+  },
 ];
 
 // Skypark local model definition
