@@ -30,8 +30,8 @@ export default function CesiumMap() {
       process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '';
 
     const v = new Cesium.Viewer(containerRef.current, {
-      terrainProvider: new Cesium.EllipsoidTerrainProvider(), // Flat surface, no elevation
-      baseLayer: false, // Remove default Bing Maps imagery
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+      baseLayer: false,
       animation: false,
       timeline: false,
       baseLayerPicker: false,
@@ -63,7 +63,7 @@ export default function CesiumMap() {
     if (v.scene.skyAtmosphere) v.scene.skyAtmosphere.show = true;
 
     // Lighting — makes 3D models look realistic instead of flat/grey
-    v.scene.light = new Cesium.SunLight({ intensity: 2.2 });
+    v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
     v.scene.highDynamicRange = true;
     v.scene.gamma = 1.0;
 

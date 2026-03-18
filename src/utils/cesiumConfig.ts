@@ -4,6 +4,7 @@ import * as Cesium from 'cesium';
 const TOKENS: Record<string, string> = {
   TOKEN_1: process.env.NEXT_PUBLIC_CESIUM_TOKEN_1 || '',
   TOKEN_2: process.env.NEXT_PUBLIC_CESIUM_TOKEN_2 || '',
+  TOKEN_3: process.env.NEXT_PUBLIC_CESIUM_TOKEN_3 || '',
   ION_DEFAULT: process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '',
 };
 
@@ -46,6 +47,14 @@ export const ION_MODELS: IonModelDef[] = [
     tokenKey: 'TOKEN_2',
     longitude: 49.955,
     latitude: 40.590,
+  },
+  {
+    id: 'test-4540038',
+    name: 'Test Building',
+    assetId: 4540038,
+    tokenKey: 'TOKEN_3',
+    longitude: 49.950,
+    latitude: 40.585,
   },
 ];
 
