@@ -15,3 +15,15 @@ body {
 .cesium-viewer-bottom {
   display: none !important;
 }
+
+/* Sun slider thumb */
+.sun-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #FFA500;
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+}

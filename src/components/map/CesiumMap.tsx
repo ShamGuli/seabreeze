@@ -14,6 +14,8 @@ import BuildingMarkers, { flyToBuilding } from './BuildingMarkers';
 import Sidebar from '../ui/Sidebar';
 import SearchBar from '../ui/SearchBar';
 import CategoryFilter from '../ui/CategoryFilter';
+import MyLocationButton from '../ui/MyLocationButton';
+import SunSlider from '../ui/SunSlider';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -112,6 +114,8 @@ export default function CesiumMap() {
       <BuildingMarkers viewer={viewer} />
       <SearchBar onFlyTo={(b) => viewer && flyToBuilding(viewer, b)} />
       <CategoryFilter />
+      <MyLocationButton viewer={viewer} />
+      <SunSlider viewer={viewer} />
       <Sidebar />
     </div>
   );
