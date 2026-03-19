@@ -23,72 +23,7 @@ export interface IonModelDef {
   heightOffset?: number;
 }
 
-export const ION_MODELS: IonModelDef[] = [
-  {
-    id: 'nobu',
-    name: 'Nobu',
-    assetId: 4481945,
-    tokenKey: 'TOKEN_1',
-    longitude: 49.946508,
-    latitude: 40.588146,
-  },
-  {
-    id: 'eva',
-    name: 'EVA',
-    assetId: 4525522,
-    tokenKey: 'TOKEN_1',
-    longitude: 49.967888,
-    latitude: 40.591375,
-  },
-  {
-    id: 'digital',
-    name: 'Digital Residence',
-    assetId: 4537132,
-    tokenKey: 'TOKEN_2',
-    longitude: 49.955,
-    latitude: 40.590,
-  },
-  {
-    id: 'test-4540038',
-    name: 'Test Building',
-    assetId: 4540038,
-    tokenKey: 'TOKEN_3',
-    longitude: 49.950,
-    latitude: 40.585,
-  },
-  {
-    id: 'building-4540015',
-    name: 'Building 4540015',
-    assetId: 4540015,
-    tokenKey: 'TOKEN_3',
-    longitude: 49.950,
-    latitude: 40.585,
-  },
-  {
-    id: 'building-4543828',
-    name: 'Building 4543828',
-    assetId: 4543828,
-    tokenKey: 'TOKEN_3',
-    longitude: 49.950,
-    latitude: 40.585,
-  },
-  {
-    id: 'building-4544141',
-    name: 'Building 4544141',
-    assetId: 4544141,
-    tokenKey: 'TOKEN_3',
-    longitude: 49.950,
-    latitude: 40.585,
-  },
-  {
-    id: 'halfmoon-4544281',
-    name: 'Halfmoon',
-    assetId: 4544281,
-    tokenKey: 'TOKEN_3',
-    longitude: 49.950,
-    latitude: 40.585,
-  },
-];
+export const ION_MODELS: IonModelDef[] = [];
 
 // Skypark local model definition
 export const SKYPARK = {
@@ -127,33 +62,6 @@ export async function loadIonTileset(
     const offset = Cesium.Cartesian3.subtract(adjusted, center, new Cesium.Cartesian3());
     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
   }
-
-  // PBR lighting shader — makes models look realistic instead of flat/grey
-  tileset.customShader = new Cesium.CustomShader({
-    lightingModel: Cesium.LightingModel.PBR,
-    fragmentShaderText: `
-      void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
-        material.diffuse *= 1.3;
-        material.emissive = material.diffuse * 0.15;
-      }
-    `,
-  });
-
-  // Image-based lighting with spherical harmonics
-  const ibl = new Cesium.ImageBasedLighting();
-  ibl.imageBasedLightingFactor = new Cesium.Cartesian2(1.0, 1.0);
-  ibl.sphericalHarmonicCoefficients = [
-    new Cesium.Cartesian3(0.8, 0.8, 0.85),
-    new Cesium.Cartesian3(0.3, 0.3, 0.35),
-    new Cesium.Cartesian3(0.2, 0.2, 0.2),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(0.1, 0.1, 0.1),
-    new Cesium.Cartesian3(0.05, 0.05, 0.05),
-    new Cesium.Cartesian3(-0.1, -0.1, -0.1),
-    new Cesium.Cartesian3(0.1, 0.1, 0.1),
-  ];
-  tileset.imageBasedLighting = ibl;
 
   viewer.scene.primitives.add(tileset);
 

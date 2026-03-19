@@ -53,24 +53,8 @@ export default function CesiumMap() {
       }
     })();
 
-    // Globe & scene settings
+    // Globe settings
     v.scene.globe.depthTestAgainstTerrain = false;
-    v.scene.globe.enableLighting = true;
-    v.scene.globe.maximumScreenSpaceError = 1.5;
-
-    v.scene.fog.enabled = true;
-    v.scene.fog.density = 0.0003;
-    if (v.scene.skyAtmosphere) v.scene.skyAtmosphere.show = true;
-
-    // Lighting — makes 3D models look realistic instead of flat/grey
-    v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
-    v.scene.highDynamicRange = true;
-    v.scene.gamma = 1.0;
-
-    // Shadows
-    v.shadows = true;
-    v.shadowMap.softShadows = true;
-    v.shadowMap.darkness = 0.6;
 
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
@@ -83,10 +67,6 @@ export default function CesiumMap() {
       Cesium.CameraEventType.PINCH,
       { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL },
     ];
-
-    // Performance
-    v.scene.requestRenderMode = true;
-    v.scene.maximumRenderTimeChange = 0.1;
 
     // Initial camera: top-down view centered on resort
     v.camera.setView({
