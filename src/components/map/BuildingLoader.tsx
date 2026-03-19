@@ -34,7 +34,7 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
 
       // 3 new tilesets (TOKEN_3 account)
       const token3 = getToken('TOKEN_3');
-      const newAssets = [4543828, 4544141, 4544281, 4544666];
+      const newAssets = [4543828, 4544141, 4544281, 4544666, 4544710];
       for (const assetId of newAssets) {
         try {
           const resource = await Cesium.IonResource.fromAssetId(assetId, { accessToken: token3 });
