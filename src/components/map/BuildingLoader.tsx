@@ -56,45 +56,17 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
       // Fetch all 3DTILES assets from the Ion account dynamically
       const assetIds = await fetchIonAssetIds(token);
 
-      // Paralel yüklə — hamısı eyni anda başlayır
-      await Promise.allSettled(
-        assetIds.map(async (assetId) => {
-          try {
-            const resource = await Cesium.IonResource.fromAssetId(assetId, {
-              accessToken: token,
-            });
-            const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
-              maximumScreenSpaceError: 24,
-              maximumMemoryUsage: 256,
-              skipLevelOfDetail: true,
-              baseScreenSpaceError: 1024,
-              skipScreenSpaceErrorFactor: 16,
-              skipLevels: 1,
-              immediatelyLoadDesiredLevelOfDetail: false,
-              loadSiblings: false,
-            });
-            tileset.shadows = Cesium.ShadowMode.ENABLED;
-
-            // Ground plane-i terrain altına batır (boz səthi gizlət)
-            const center = tileset.boundingSphere.center;
-            const cart = Cesium.Cartographic.fromCartesian(center);
-            const surface = Cesium.Cartesian3.fromRadians(
-              cart.longitude, cart.latitude, cart.height
-            );
-            const shifted = Cesium.Cartesian3.fromRadians(
-              cart.longitude, cart.latitude, cart.height - 0.5
-            );
-            const offset = Cesium.Cartesian3.subtract(
-              shifted, surface, new Cesium.Cartesian3()
-            );
-            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
-
-            viewer.scene.primitives.add(tileset);
-          } catch (err) {
-            console.error(`Failed to load tileset ${assetId}:`, err);
-          }
-        })
-      );
+      for (const assetId of assetIds) {
+        try {
+          const resource = await Cesium.IonResource.fromAssetId(assetId, {
+            accessToken: token,
+          });
+          const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
+          viewer.scene.primitives.add(tileset);
+        } catch (err) {
+          console.error(`Failed to load tileset ${assetId}:`, err);
+        }
+      }
     }
 
     loadAllModels();
