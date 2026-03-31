@@ -23,15 +23,15 @@ async function fetchIonAssetIds(token: string): Promise<number[]> {
       return [];
     }
 
-    const data = await res.json();
-    // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
-    // Only load user-uploaded assets (id > 4000000)
-    const ids: number[] = (data.items ?? [])
-      .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
-      .map((item: any) => {
-        console.log(`Ion asset: [${item.id}] ${item.name}`);
-        return item.id as number;
-      });
+  const data = await res.json();
+  // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
+  // Only load user-uploaded assets (id > 4000000)
+  const ids: number[] = (data.items ?? [])
+    .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
+    .map((item: any) => {
+      console.log(`Ion asset: [${item.id}] ${item.name}`);
+      return item.id as number;
+    });
 
     console.log(`Cesium Ion: ${ids.length} 3D Tiles assets found`);
     return ids;
@@ -62,6 +62,14 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
             accessToken: token,
           });
           const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
+
+          const center = tileset.boundingSphere.center;
+          const cart = Cesium.Cartographic.fromCartesian(center);
+          const surface = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height);
+          const shifted = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height - 35.0);
+          const offset = Cesium.Cartesian3.subtract(shifted, surface, new Cesium.Cartesian3());
+          tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+
           viewer.scene.primitives.add(tileset);
         } catch (err) {
           console.error(`Failed to load tileset ${assetId}:`, err);

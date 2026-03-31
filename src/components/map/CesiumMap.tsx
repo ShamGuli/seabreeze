@@ -33,7 +33,6 @@ export default function CesiumMap() {
       process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '';
 
     const v = new Cesium.Viewer(containerRef.current, {
-      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
       baseLayer: false,
       animation: false,
       timeline: false,
@@ -48,16 +47,26 @@ export default function CesiumMap() {
       navigationHelpButton: false,
     });
 
-    // Add Google Maps 2D Satellite imagery from Ion (must load before overlay)
+    // Cesium World Terrain — real yer səthi (Ion Stories ilə eyni)
+    (async () => {
+      try {
+        const terrain = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+        if (!v.isDestroyed()) v.terrainProvider = terrain;
+      } catch {
+        console.warn('Terrain yüklənmədi');
+      }
+    })();
+
+    // Google Maps 2D Satellite imagery
     (async () => {
       const provider = await Cesium.IonImageryProvider.fromAssetId(3830182);
       if (!v.isDestroyed()) {
-        v.imageryLayers.addImageryProvider(provider, 0); // index 0 = base layer
+        v.imageryLayers.addImageryProvider(provider, 0);
       }
     })();
 
     // Globe settings
-    v.scene.globe.depthTestAgainstTerrain = false;
+    v.scene.globe.depthTestAgainstTerrain = true;
 
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
