@@ -35,18 +35,18 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
     // Ekranın mərkəzindəki nöqtəni tap (kamera hara baxırsa)
     const canvas = viewer.scene.canvas;
     const centerPixel = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
-    let center = viewer.scene.pickPosition(centerPixel);
+    let center: Cesium.Cartesian3 | undefined = viewer.scene.pickPosition(centerPixel);
     if (!center || !Cesium.defined(center)) {
-      center = viewer.camera.pickEllipsoid(centerPixel, viewer.scene.globe.ellipsoid);
+      center = viewer.camera.pickEllipsoid(centerPixel, viewer.scene.globe.ellipsoid) ?? undefined;
     }
     if (!center) {
-      // Fallback: layihənin mərkəzi
       center = Cesium.Cartesian3.fromDegrees(49.950, 40.584, 0);
     }
+    const orbitCenter = center;
 
     let heading = viewer.camera.heading;
     const pitch = viewer.camera.pitch;
-    const range = Cesium.Cartesian3.distance(viewer.camera.position, center);
+    const range = Cesium.Cartesian3.distance(viewer.camera.position, orbitCenter);
 
     function orbitStep() {
       if (!orbitRef.current || !viewer || viewer.isDestroyed()) {
@@ -55,7 +55,7 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
       }
       heading += Cesium.Math.toRadians(0.3);
       viewer.camera.lookAt(
-        center!,
+        orbitCenter,
         new Cesium.HeadingPitchRange(heading, pitch, range)
       );
       viewer.scene.requestRender();
@@ -63,7 +63,7 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
     }
 
     viewer.camera.lookAt(
-      center,
+      orbitCenter,
       new Cesium.HeadingPitchRange(heading, pitch, range)
     );
     requestAnimationFrame(orbitStep);
