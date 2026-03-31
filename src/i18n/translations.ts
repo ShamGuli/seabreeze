@@ -17,7 +17,7 @@ export const T: TranslationMap = {
   catRestaurant:    { az: 'Restoranlar',          ru: 'Рестораны',              en: 'Restaurants'   },
   catEducation:     { az: 'Təhsil',               ru: 'Образование',            en: 'Education'     },
   catService:       { az: 'Xidmətlər',            ru: 'Услуги',                 en: 'Services'      },
-  catLandmark:      { az: 'Landmarklar',          ru: 'Достопримечательности',  en: 'Landmarks'     },
+  catLandmark:      { az: 'Landmarklar',          ru: 'Памятники',              en: 'Landmarks'     },
 
   // ── Sidebar header ──
   openNow:  { az: 'Açıqdır',  ru: 'Открыто',  en: 'Open Now' },
