@@ -2,14 +2,38 @@
 
 import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
-import {
-  ION_MODELS,
-  getToken,
-  loadIonTileset,
-} from '@/utils/cesiumConfig';
+import { getToken } from '@/utils/cesiumConfig';
 
 interface BuildingLoaderProps {
   viewer: Cesium.Viewer | null;
+}
+
+/**
+ * Fetches all 3DTILES assets from a Cesium Ion account via REST API.
+ * When assets are added/removed on Ion, no code change needed — auto-syncs.
+ */
+async function fetchIonAssetIds(token: string): Promise<number[]> {
+  const res = await fetch('https://api.cesium.com/v1/assets?limit=999', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    console.error(`Cesium Ion API error: ${res.status} ${res.statusText}`);
+    return [];
+  }
+
+  const data = await res.json();
+  // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
+  // Only load user-uploaded assets (id > 4000000)
+  const ids: number[] = (data.items ?? [])
+    .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
+    .map((item: any) => {
+      console.log(`Ion asset: [${item.id}] ${item.name}`);
+      return item.id as number;
+    });
+
+  console.log(`Cesium Ion: ${ids.length} 3D Tiles assets found`);
+  return ids;
 }
 
 export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
@@ -22,29 +46,22 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
     async function loadAllModels() {
       if (!viewer) return;
 
-      // Load Ion tilesets — repositioned to client-confirmed coordinates
-      for (const model of ION_MODELS) {
-        try {
-          const token = getToken(model.tokenKey);
-          await loadIonTileset(viewer, model.assetId, token, model.name, model.heightOffset ?? 0);
-        } catch (err) {
-          console.error(`Failed to load ${model.name}:`, err);
-        }
-      }
+      const token = getToken('TOKEN_3');
 
-      // 3 new tilesets (TOKEN_3 account)
-      const token3 = getToken('TOKEN_3');
-      const newAssets = [4543828, 4544141, 4544753, 4544666, 4544710, 4544731, 4545101, 4545106];
-      for (const assetId of newAssets) {
+      // Fetch all 3DTILES assets from the Ion account dynamically
+      const assetIds = await fetchIonAssetIds(token);
+
+      for (const assetId of assetIds) {
         try {
-          const resource = await Cesium.IonResource.fromAssetId(assetId, { accessToken: token3 });
+          const resource = await Cesium.IonResource.fromAssetId(assetId, {
+            accessToken: token,
+          });
           const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
           viewer.scene.primitives.add(tileset);
         } catch (err) {
           console.error(`Failed to load tileset ${assetId}:`, err);
         }
       }
-
     }
 
     loadAllModels();
