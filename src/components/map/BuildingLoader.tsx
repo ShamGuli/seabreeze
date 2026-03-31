@@ -56,25 +56,35 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
       // Fetch all 3DTILES assets from the Ion account dynamically
       const assetIds = await fetchIonAssetIds(token);
 
-      for (const assetId of assetIds) {
-        try {
-          const resource = await Cesium.IonResource.fromAssetId(assetId, {
-            accessToken: token,
-          });
-          const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
+      await Promise.allSettled(
+        assetIds.map(async (assetId) => {
+          try {
+            const resource = await Cesium.IonResource.fromAssetId(assetId, {
+              accessToken: token,
+            });
+            const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
+              maximumScreenSpaceError: 24,
+              skipLevelOfDetail: true,
+              baseScreenSpaceError: 1024,
+              skipScreenSpaceErrorFactor: 16,
+              skipLevels: 1,
+              immediatelyLoadDesiredLevelOfDetail: false,
+              loadSiblings: false,
+            });
 
-          const center = tileset.boundingSphere.center;
-          const cart = Cesium.Cartographic.fromCartesian(center);
-          const surface = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height);
-          const shifted = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height - 35.0);
-          const offset = Cesium.Cartesian3.subtract(shifted, surface, new Cesium.Cartesian3());
-          tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+            const center = tileset.boundingSphere.center;
+            const cart = Cesium.Cartographic.fromCartesian(center);
+            const surface = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height);
+            const shifted = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height - 33.0);
+            const offset = Cesium.Cartesian3.subtract(shifted, surface, new Cesium.Cartesian3());
+            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
 
-          viewer.scene.primitives.add(tileset);
-        } catch (err) {
-          console.error(`Failed to load tileset ${assetId}:`, err);
-        }
-      }
+            viewer.scene.primitives.add(tileset);
+          } catch (err) {
+            console.error(`Failed to load tileset ${assetId}:`, err);
+          }
+        })
+      );
     }
 
     loadAllModels();

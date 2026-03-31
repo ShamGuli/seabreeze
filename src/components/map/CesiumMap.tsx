@@ -17,6 +17,7 @@ import CategoryFilter from '../ui/CategoryFilter';
 import MyLocationButton from '../ui/MyLocationButton';
 import SunSlider from '../ui/SunSlider';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
+import NavigationControls from '../ui/NavigationControls';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -45,6 +46,9 @@ export default function CesiumMap() {
       sceneModePicker: false,
       selectionIndicator: false,
       navigationHelpButton: false,
+      useBrowserRecommendedResolution: true,
+      requestRenderMode: true,
+      maximumRenderTimeChange: Infinity,
     });
 
     // Cesium World Terrain — real yer səthi (Ion Stories ilə eyni)
@@ -67,6 +71,14 @@ export default function CesiumMap() {
 
     // Globe settings
     v.scene.globe.depthTestAgainstTerrain = true;
+    v.scene.fog.enabled = true;
+    v.scene.globe.tileCacheSize = 100;
+
+    // Default günəş işığı — binalar işıqlı görünsün (kölgə deaktiv)
+    v.scene.globe.enableLighting = true;
+    v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
+    v.clock.currentTime = Cesium.JulianDate.fromIso8601('2025-07-15T12:00:00Z');
+    v.clock.shouldAnimate = false;
 
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
@@ -127,6 +139,7 @@ export default function CesiumMap() {
       <MyLocationButton viewer={viewer} />
       <SunSlider viewer={viewer} />
       <LanguageSwitcher />
+      <NavigationControls viewer={viewer} />
       <Sidebar />
     </div>
   );
