@@ -46,6 +46,9 @@ export default function CesiumMap() {
       sceneModePicker: false,
       selectionIndicator: false,
       navigationHelpButton: false,
+      useBrowserRecommendedResolution: true,
+      requestRenderMode: true,
+      maximumRenderTimeChange: Infinity,
     });
 
     // Add Google Maps 2D Satellite imagery from Ion (must load before overlay)
@@ -62,13 +65,16 @@ export default function CesiumMap() {
     // ── Sun lighting & shadows ──
     v.scene.globe.enableLighting = true;
     v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
-    v.scene.highDynamicRange = true;
     v.shadows = true;
-    v.shadowMap.softShadows = true;
+    v.shadowMap.softShadows = false;
     v.shadowMap.darkness = 0.5;
-    v.shadowMap.size = 4096;
+    v.shadowMap.size = 2048;
     v.clock.currentTime = Cesium.JulianDate.fromIso8601('2025-07-15T13:00:00Z');
     v.clock.shouldAnimate = false;
+
+    // ── Performance ──
+    v.scene.fog.enabled = true;
+    v.scene.globe.tileCacheSize = 100;
 
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;

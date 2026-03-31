@@ -39,6 +39,7 @@ export default function SunSlider({ viewer }: SunSliderProps) {
       'T' + String(wholeHour).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':00Z';
     viewer.clock.currentTime = Cesium.JulianDate.fromIso8601(dateString);
     viewer.clock.shouldAnimate = false;
+    viewer.scene.requestRender();
   }
 
   function getTimeLabel(hour: number) {

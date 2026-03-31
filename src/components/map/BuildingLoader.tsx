@@ -56,18 +56,30 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
       // Fetch all 3DTILES assets from the Ion account dynamically
       const assetIds = await fetchIonAssetIds(token);
 
-      for (const assetId of assetIds) {
-        try {
-          const resource = await Cesium.IonResource.fromAssetId(assetId, {
-            accessToken: token,
-          });
-          const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
-          tileset.shadows = Cesium.ShadowMode.ENABLED;
-          viewer.scene.primitives.add(tileset);
-        } catch (err) {
-          console.error(`Failed to load tileset ${assetId}:`, err);
-        }
-      }
+      // Paralel yüklə — hamısı eyni anda başlayır
+      await Promise.allSettled(
+        assetIds.map(async (assetId) => {
+          try {
+            const resource = await Cesium.IonResource.fromAssetId(assetId, {
+              accessToken: token,
+            });
+            const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
+              maximumScreenSpaceError: 24,
+              maximumMemoryUsage: 256,
+              skipLevelOfDetail: true,
+              baseScreenSpaceError: 1024,
+              skipScreenSpaceErrorFactor: 16,
+              skipLevels: 1,
+              immediatelyLoadDesiredLevelOfDetail: false,
+              loadSiblings: false,
+            });
+            tileset.shadows = Cesium.ShadowMode.ENABLED;
+            viewer.scene.primitives.add(tileset);
+          } catch (err) {
+            console.error(`Failed to load tileset ${assetId}:`, err);
+          }
+        })
+      );
     }
 
     loadAllModels();
