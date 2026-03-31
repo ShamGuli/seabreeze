@@ -58,6 +58,7 @@ export default function CategoryFilter() {
           fontWeight: 600,
           cursor: 'pointer',
           transition: 'all 0.15s',
+          whiteSpace: 'nowrap',
           marginRight: 4,
         }}
       >
@@ -79,6 +80,7 @@ export default function CategoryFilter() {
               fontWeight: 500,
               cursor: 'pointer',
               transition: 'all 0.15s',
+              whiteSpace: 'nowrap',
               opacity: active ? 1 : 0.7,
             }}
           >

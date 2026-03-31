@@ -13,27 +13,32 @@ interface BuildingLoaderProps {
  * When assets are added/removed on Ion, no code change needed — auto-syncs.
  */
 async function fetchIonAssetIds(token: string): Promise<number[]> {
-  const res = await fetch('https://api.cesium.com/v1/assets?limit=999', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    console.error(`Cesium Ion API error: ${res.status} ${res.statusText}`);
-    return [];
-  }
-
-  const data = await res.json();
-  // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
-  // Only load user-uploaded assets (id > 4000000)
-  const ids: number[] = (data.items ?? [])
-    .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
-    .map((item: any) => {
-      console.log(`Ion asset: [${item.id}] ${item.name}`);
-      return item.id as number;
+  try {
+    const res = await fetch('https://api.cesium.com/v1/assets?limit=999', {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-  console.log(`Cesium Ion: ${ids.length} 3D Tiles assets found`);
-  return ids;
+    if (!res.ok) {
+      console.error(`Cesium Ion API error: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    const data = await res.json();
+    // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
+    // Only load user-uploaded assets (id > 4000000)
+    const ids: number[] = (data.items ?? [])
+      .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
+      .map((item: any) => {
+        console.log(`Ion asset: [${item.id}] ${item.name}`);
+        return item.id as number;
+      });
+
+    console.log(`Cesium Ion: ${ids.length} 3D Tiles assets found`);
+    return ids;
+  } catch (err) {
+    console.error('Failed to fetch Ion assets:', err);
+    return [];
+  }
 }
 
 export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
@@ -57,6 +62,7 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
             accessToken: token,
           });
           const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
+          tileset.shadows = Cesium.ShadowMode.ENABLED;
           viewer.scene.primitives.add(tileset);
         } catch (err) {
           console.error(`Failed to load tileset ${assetId}:`, err);

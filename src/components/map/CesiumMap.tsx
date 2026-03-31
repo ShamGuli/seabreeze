@@ -59,6 +59,17 @@ export default function CesiumMap() {
     // Globe settings
     v.scene.globe.depthTestAgainstTerrain = false;
 
+    // ── Sun lighting & shadows ──
+    v.scene.globe.enableLighting = true;
+    v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
+    v.scene.highDynamicRange = true;
+    v.shadows = true;
+    v.shadowMap.softShadows = true;
+    v.shadowMap.darkness = 0.5;
+    v.shadowMap.size = 4096;
+    v.clock.currentTime = Cesium.JulianDate.fromIso8601('2025-07-15T13:00:00Z');
+    v.clock.shouldAnimate = false;
+
     // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
     ctrl.minimumZoomDistance = 10;
