@@ -1,15 +1,25 @@
 'use client';
 
 import { useMapStore } from '@/store/mapStore';
-import {
-  CATEGORY_COLORS,
-  CATEGORY_LABELS,
-  type BuildingCategory,
-} from '@/data/categories';
+import { CATEGORY_COLORS, type BuildingCategory } from '@/data/categories';
+import { useLang } from '@/context/LanguageContext';
 
 const CATEGORIES = Object.keys(CATEGORY_COLORS) as BuildingCategory[];
 
+const CAT_LABEL_KEYS: Record<BuildingCategory, string> = {
+  hotel:         'catHotel',
+  residence:     'catResidence',
+  villa:         'catVilla',
+  entertainment: 'catEntertainment',
+  beach:         'catBeach',
+  restaurant:    'catRestaurant',
+  education:     'catEducation',
+  service:       'catService',
+  landmark:      'catLandmark',
+};
+
 export default function CategoryFilter() {
+  const { t } = useLang();
   const activeCategory = useMapStore((s) => s.activeCategory);
   const setActiveCategory = useMapStore((s) => s.setActiveCategory);
   const markersHidden = useMapStore((s) => s.markersHidden);
@@ -51,7 +61,7 @@ export default function CategoryFilter() {
           marginRight: 4,
         }}
       >
-        {markersHidden ? 'Show All' : 'Hide All'}
+        {markersHidden ? t('showAll') : t('hideAll')}
       </button>
       {CATEGORIES.map((cat) => {
         const active = activeCategory === cat;
@@ -72,7 +82,7 @@ export default function CategoryFilter() {
               opacity: active ? 1 : 0.7,
             }}
           >
-            {CATEGORY_LABELS[cat]}
+            {t(CAT_LABEL_KEYS[cat])}
           </button>
         );
       })}

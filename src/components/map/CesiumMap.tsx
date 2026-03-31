@@ -16,6 +16,7 @@ import SearchBar from '../ui/SearchBar';
 import CategoryFilter from '../ui/CategoryFilter';
 import MyLocationButton from '../ui/MyLocationButton';
 import SunSlider from '../ui/SunSlider';
+import LanguageSwitcher from '../ui/LanguageSwitcher';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -116,6 +117,7 @@ export default function CesiumMap() {
       <CategoryFilter />
       <MyLocationButton viewer={viewer} />
       <SunSlider viewer={viewer} />
+      <LanguageSwitcher />
       <Sidebar />
     </div>
   );

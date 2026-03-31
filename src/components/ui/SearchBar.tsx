@@ -4,12 +4,14 @@ import { useRef, useState, useEffect } from 'react';
 import { buildings, type Building } from '@/data/buildings';
 import { CATEGORY_COLORS } from '@/data/categories';
 import { useMapStore } from '@/store/mapStore';
+import { useLang } from '@/context/LanguageContext';
 
 interface SearchBarProps {
   onFlyTo: (building: Building) => void;
 }
 
 export default function SearchBar({ onFlyTo }: SearchBarProps) {
+  const { t } = useLang();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
@@ -60,7 +62,7 @@ export default function SearchBar({ onFlyTo }: SearchBarProps) {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Search buildings..."
+        placeholder={t('searchPlaceholder')}
         style={{
           width: '100%',
           padding: '10px 16px',

@@ -1,9 +1,18 @@
 'use client';
 
 import { useMapStore } from '@/store/mapStore';
-import { CATEGORY_COLORS, CATEGORY_LABELS, type BuildingCategory } from '@/data/categories';
+import { CATEGORY_COLORS } from '@/data/categories';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Building } from '@/data/buildings';
+import { useLang } from '@/context/LanguageContext';
+import {
+  DESCRIPTIONS,
+  CONSTRUCTIONS,
+  AMENITIES_DATA,
+  RESTAURANT_CUISINES,
+  CATEGORY_LABELS_I18N,
+  type Lang,
+} from '@/i18n/translations';
 
 // ─── Stable random generator seeded by building name ───
 function createRng(name: string) {
@@ -25,8 +34,25 @@ function createRng(name: string) {
       hash = (hash * 9301 + 49297) % 233280;
       return hash / 233280 < chance;
     },
+    pickIdx(len: number) {
+      hash = (hash * 9301 + 49297) % 233280;
+      return Math.floor((hash / 233280) * len);
+    },
   };
 }
+
+const OFFICE_NAMES = [
+  'Azure Consulting', 'Caspian Legal Group', 'TechHub Innovations',
+  'SeaView Real Estate', 'Baku Financial Services', 'Meridian Architecture',
+  'Global Trade Partners', 'Silk Road Analytics', 'Neftchi Ventures',
+  'Absheron Advisory', 'Digital Wave Studio', 'Caspian Logistics',
+];
+
+const RESTAURANT_NAMES = [
+  'Sapore Italiano', 'The Breeze Cafe', 'Nami Sushi Bar',
+  'Sahil Grill House', 'La Mer Bistro', 'Baku Doner',
+  'Caspian Terrace', 'Mango Smoothie Bar',
+];
 
 interface BuildingData {
   floors: number;
@@ -38,56 +64,15 @@ interface BuildingData {
   maxUnitSize: number;
   parkingSpaces: number;
   yearBuilt: number;
-  construction: string;
-  description: string;
+  constructionIdx: number;
+  descriptionIdx: number;
   address: string;
-  district: string;
+  blockNum: number;
   phone: string;
   offices: { name: string; floor: number; area: number; active: boolean }[];
-  restaurants: { name: string; cuisine: string; floor: number; area: number; capacity: number; open: string; close: string }[];
-  amenities: string[];
+  restaurants: { nameIdx: number; cuisineIdx: number; floor: number; area: number; capacity: number; open: string; close: string }[];
+  amenityIndices: number[];
 }
-
-const OFFICE_NAMES = [
-  'Azure Consulting', 'Caspian Legal Group', 'TechHub Innovations',
-  'SeaView Real Estate', 'Baku Financial Services', 'Meridian Architecture',
-  'Global Trade Partners', 'Silk Road Analytics', 'Neftchi Ventures',
-  'Absheron Advisory', 'Digital Wave Studio', 'Caspian Logistics',
-];
-
-const RESTAURANT_DATA = [
-  { name: 'Sapore Italiano', cuisine: 'Italyan mətbəxi' },
-  { name: 'The Breeze Cafe', cuisine: 'Qəhvə və şirniyyat' },
-  { name: 'Nami Sushi Bar', cuisine: 'Yapon mətbəxi' },
-  { name: 'Sahil Grill House', cuisine: 'Manqal və qril' },
-  { name: 'La Mer Bistro', cuisine: 'Fransız mətbəxi' },
-  { name: 'Baku Doner', cuisine: 'Türk fast-food' },
-  { name: 'Caspian Terrace', cuisine: 'Azərbaycan mətbəxi' },
-  { name: 'Mango Smoothie Bar', cuisine: 'Şirələr və kokteyllər' },
-];
-
-const AMENITIES = [
-  { icon: '\u{1F3CA}', label: 'Hovuz' },
-  { icon: '\u{1F3CB}\u{FE0F}', label: 'İdman zalı' },
-  { icon: '\u{1F17F}\u{FE0F}', label: 'Parkinq' },
-  { icon: '\u{1F6D7}', label: 'Lift' },
-  { icon: '\u{1F4F9}', label: 'Kamera' },
-  { icon: '\u{1F310}', label: 'WiFi' },
-  { icon: '\u{1F46E}', label: 'Mühafizə' },
-  { icon: '\u{1F333}', label: 'Bağ' },
-  { icon: '\u{1F9D2}', label: 'Uşaq meydançası' },
-  { icon: '\u{1F9FA}', label: 'Camaşırxana' },
-];
-
-const CONSTRUCTIONS = ['Dəmir-beton', 'Metal karkas', 'Monolit beton', 'Yığma beton'];
-
-const DESCRIPTIONS = [
-  'SeaBreeze kurort zonasında yerləşən premium yaşayış kompleksi. Panoramik dəniz mənzərəsi və dünya səviyyəli infrastruktur təklif edir.',
-  'Xəzər sahilində lüks yaşayış imkanı təqdim edən unikal layihə. Müasir dizayn və ekoloji materiallarla inşa edilib.',
-  'Rahatlıq və zərifliyi birləşdirən eksklüziv sahil rezidensiyası. Birbaşa çimərliyə çıxış və kurort tipli xidmətlər mövcuddur.',
-  'SeaBreeze-in mərkəzində yerləşən müasir çoxfunksiyalı kompleks. Yaşayış rahatlığı ilə kommersiya imkanlarını birləşdirir.',
-  'Abşeron yarımadasında memarlıq şah əsəri. Döşəmədən tavana qədər pəncərələr Xəzər dənizinin heyrətamiz mənzərəsini açır.',
-];
 
 function generateBuildingData(building: Building): BuildingData {
   const rng = createRng(building.name);
@@ -110,11 +95,11 @@ function generateBuildingData(building: Building): BuildingData {
 
   const restCount = rng.int(2, 4);
   const restaurants = Array.from({ length: restCount }, (_, i) => {
-    const r = RESTAURANT_DATA[i % RESTAURANT_DATA.length];
     const openH = rng.int(7, 12);
     const closeH = rng.int(21, 24);
     return {
-      ...r,
+      nameIdx: i % RESTAURANT_NAMES.length,
+      cuisineIdx: i % RESTAURANT_CUISINES.az.length,
       floor: rng.int(1, 2),
       area: rng.int(80, 220),
       capacity: rng.int(20, 80),
@@ -124,45 +109,40 @@ function generateBuildingData(building: Building): BuildingData {
   });
 
   const amenityCount = rng.int(5, 10);
-  const amenities: string[] = [];
+  const amenityIndices: number[] = [];
   const used = new Set<number>();
+  const amenLen = AMENITIES_DATA.az.length;
   for (let i = 0; i < amenityCount; i++) {
-    let idx = rng.int(0, AMENITIES.length - 1);
-    while (used.has(idx)) idx = (idx + 1) % AMENITIES.length;
+    let idx = rng.int(0, amenLen - 1);
+    let tries = 0;
+    while (used.has(idx) && tries < amenLen) { idx = (idx + 1) % amenLen; tries++; }
     used.add(idx);
-    amenities.push(AMENITIES[idx].icon + ' ' + AMENITIES[idx].label);
+    amenityIndices.push(idx);
   }
 
   const phoneMiddle = rng.int(100, 999);
   const phoneLast = rng.int(10, 99);
+  const blockNum = rng.int(1, 20);
 
   return {
-    floors,
-    blocks,
-    unitsPerFloor,
-    totalUnits,
-    avgUnitSize,
-    minUnitSize,
-    maxUnitSize,
+    floors, blocks, unitsPerFloor, totalUnits,
+    avgUnitSize, minUnitSize, maxUnitSize,
     parkingSpaces: rng.int(50, 300),
     yearBuilt: rng.int(2020, 2026),
-    construction: rng.pick(CONSTRUCTIONS),
-    description: rng.pick(DESCRIPTIONS),
-    address: 'SeaBreeze Bulvarı, Blok ' + rng.int(1, 20) + ', Bakı, Azərbaycan',
-    district: 'Neftçala şossesi, Sahil',
+    constructionIdx: rng.pickIdx(CONSTRUCTIONS.az.length),
+    descriptionIdx: rng.pickIdx(DESCRIPTIONS.az.length),
+    address: '',
+    blockNum,
     phone: '+994 12 ' + phoneMiddle + ' ' + phoneLast + ' ' + rng.int(10, 99),
     offices,
     restaurants,
-    amenities,
+    amenityIndices,
   };
 }
 
 function isOpenNow(open: string, close: string): boolean {
-  const now = new Date();
-  const h = now.getHours();
-  const openH = parseInt(open);
-  const closeH = parseInt(close);
-  return h >= openH && h < closeH;
+  const h = new Date().getHours();
+  return h >= parseInt(open) && h < parseInt(close);
 }
 
 // ─── Section wrapper ───
@@ -170,12 +150,8 @@ function Section({ title, icon, children }: { title: string; icon: string; child
   return (
     <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{
-        fontSize: 11,
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: '1.5px',
-        color: 'rgba(255,255,255,0.4)',
-        marginBottom: 12,
+        fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
+        letterSpacing: '1.5px', color: 'rgba(255,255,255,0.4)', marginBottom: 12,
       }}>
         {icon} {title}
       </div>
@@ -188,11 +164,8 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.04)',
-      borderRadius: 10,
-      border: '1px solid rgba(255,255,255,0.06)',
-      padding: 12,
-      ...style,
+      background: 'rgba(255,255,255,0.04)', borderRadius: 10,
+      border: '1px solid rgba(255,255,255,0.06)', padding: 12, ...style,
     }}>
       {children}
     </div>
@@ -202,19 +175,29 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
 // ─── Info row ───
 function InfoRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: '6px 0',
-      fontSize: 13,
-    }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13 }}>
       <span style={{ color: 'rgba(255,255,255,0.5)' }}>{label}</span>
       <span style={{ color: 'rgba(255,255,255,0.92)', fontWeight: 500 }}>{value}</span>
     </div>
   );
 }
 
+// ─── Address by language ───
+function getAddress(blockNum: number, lang: Lang): string {
+  if (lang === 'ru') return `Бульвар SeaBreeze, Блок ${blockNum}, Баку, Азербайджан`;
+  if (lang === 'en') return `SeaBreeze Boulevard, Block ${blockNum}, Baku, Azerbaijan`;
+  return `SeaBreeze Bulvarı, Blok ${blockNum}, Bakı, Azərbaycan`;
+}
+
+function getDistrict(lang: Lang): string {
+  if (lang === 'ru') return 'Шоссе Нефтчала, Сахил';
+  if (lang === 'en') return 'Neftchala Highway, Sahil';
+  return 'Neftçala şossesi, Sahil';
+}
+
+// ─── Main Component ───
 export default function Sidebar() {
+  const { t, lang } = useLang();
   const building = useMapStore((s) => s.selectedBuilding);
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
   const flyToOverview = useMapStore((s) => s.flyToOverview);
@@ -224,6 +207,11 @@ export default function Sidebar() {
   const data = generateBuildingData(building);
   const catColor = CATEGORY_COLORS[building.category];
   const slug = building.name.toLowerCase().replace(/\s+/g, '');
+  const catLabel = CATEGORY_LABELS_I18N[building.category]?.[lang] ?? building.category;
+  const description = DESCRIPTIONS[lang][data.descriptionIdx % DESCRIPTIONS[lang].length];
+  const construction = CONSTRUCTIONS[lang][data.constructionIdx % CONSTRUCTIONS[lang].length];
+  const address = getAddress(data.blockNum, lang);
+  const district = getDistrict(lang);
 
   return (
     <AnimatePresence>
@@ -235,19 +223,10 @@ export default function Sidebar() {
           exit={{ x: -380, opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 260 }}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: 360,
-            zIndex: 20,
-            background: 'rgba(15, 20, 35, 0.92)',
-            backdropFilter: 'blur(20px)',
-            color: 'white',
-            display: 'flex',
-            flexDirection: 'column',
-            overflowY: 'auto',
-            overflowX: 'hidden',
+            position: 'absolute', top: 0, left: 0, bottom: 0, width: 360, zIndex: 20,
+            background: 'rgba(15, 20, 35, 0.92)', backdropFilter: 'blur(20px)',
+            color: 'white', display: 'flex', flexDirection: 'column',
+            overflowY: 'auto', overflowX: 'hidden',
             borderRight: '1px solid rgba(255,255,255,0.08)',
             fontFamily: 'system-ui, -apple-system, sans-serif',
           }}
@@ -255,45 +234,26 @@ export default function Sidebar() {
         >
           {/* ═══ HEADER ═══ */}
           <div style={{
-            padding: '24px 20px 18px',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
+            padding: '24px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
           }}>
             <div style={{ flex: 1 }}>
               <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, lineHeight: 1.3, color: 'rgba(255,255,255,0.95)' }}>
                 {building.name}
               </h2>
               <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                <span style={{
-                  padding: '3px 10px',
-                  borderRadius: 12,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  background: catColor,
-                }}>
-                  {CATEGORY_LABELS[building.category]}
+                <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, background: catColor }}>
+                  {catLabel}
                 </span>
               </div>
             </div>
             <button
               onClick={() => { setSelectedBuilding(null); flyToOverview?.(); }}
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.6)',
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontSize: 16,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginLeft: 12,
-                transition: 'background 0.2s',
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.6)', width: 32, height: 32, borderRadius: 8,
+                cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', flexShrink: 0, marginLeft: 12, transition: 'background 0.2s',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
@@ -306,9 +266,9 @@ export default function Sidebar() {
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               {[
-                { icon: '\u{1F4CD}', label: 'Sahə', value: (building.area_ha || +(data.floors * 0.3).toFixed(1)) + ' ha' },
-                { icon: '\u{1F3E2}', label: 'Mərtəbə', value: String(data.floors) },
-                { icon: '\u{1F3E0}', label: 'Mənzil', value: String(data.totalUnits) },
+                { icon: '\u{1F4CD}', label: t('statArea'),   value: (building.area_ha || +(data.floors * 0.3).toFixed(1)) + ' ha' },
+                { icon: '\u{1F3E2}', label: t('statFloors'), value: String(data.floors) },
+                { icon: '\u{1F3E0}', label: t('statUnits'),  value: String(data.totalUnits) },
               ].map((s) => (
                 <Card key={s.label}>
                   <div style={{ textAlign: 'center' }}>
@@ -322,71 +282,60 @@ export default function Sidebar() {
           </div>
 
           {/* ═══ HAQQINDA ═══ */}
-          <Section title="Haqqında" icon={'\u{2139}\u{FE0F}'}>
+          <Section title={t('secAbout')} icon={'\u{2139}\u{FE0F}'}>
             <p style={{ margin: 0, fontSize: 13, lineHeight: 1.7, color: 'rgba(255,255,255,0.7)' }}>
-              {data.description}
+              {description}
             </p>
           </Section>
 
-          {/* ═══ ÜNVAN VƏ KOORDİNATLAR ═══ */}
-          <Section title="Məkan" icon={'\u{1F4CD}'}>
+          {/* ═══ MƏKAN ═══ */}
+          <Section title={t('secLocation')} icon={'\u{1F4CD}'}>
             <Card>
-              <InfoRow label="Ünvan" value={data.address} />
-              <InfoRow label="Rayon" value={data.district} />
-              <InfoRow label="Koordinatlar" value={building.latitude.toFixed(4) + ', ' + building.longitude.toFixed(4)} />
+              <InfoRow label={t('rowAddress')} value={address} />
+              <InfoRow label={t('rowDistrict')} value={district} />
+              <InfoRow label={t('rowCoords')} value={building.latitude.toFixed(4) + ', ' + building.longitude.toFixed(4)} />
             </Card>
           </Section>
 
           {/* ═══ BİNA MƏLUMATLARI ═══ */}
-          <Section title="Bina məlumatları" icon={'\u{1F3D7}\u{FE0F}'}>
+          <Section title={t('secDetails')} icon={'\u{1F3D7}\u{FE0F}'}>
             <Card>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-                <InfoRow label="Növ" value={CATEGORY_LABELS[building.category]} />
-                <InfoRow label="Mərtəbə" value={data.floors} />
-                <InfoRow label="Blok" value={data.blocks} />
-                <InfoRow label="Mənzil/Mərtəbə" value={data.unitsPerFloor} />
-                <InfoRow label="Ümumi mənzil" value={data.totalUnits} />
-                <InfoRow label="Ort. sahə" value={data.avgUnitSize + ' m\u00B2'} />
-                <InfoRow label="Min. sahə" value={data.minUnitSize + ' m\u00B2'} />
-                <InfoRow label="Maks. sahə" value={data.maxUnitSize + ' m\u00B2'} />
-                <InfoRow label="Parkinq" value={data.parkingSpaces} />
-                <InfoRow label="Tikinti ili" value={data.yearBuilt} />
+                <InfoRow label={t('rowType')}       value={catLabel} />
+                <InfoRow label={t('rowFloors')}     value={data.floors} />
+                <InfoRow label={t('rowBlocks')}     value={data.blocks} />
+                <InfoRow label={t('rowUnitsFloor')} value={data.unitsPerFloor} />
+                <InfoRow label={t('rowTotalUnits')} value={data.totalUnits} />
+                <InfoRow label={t('rowAvgSize')}    value={data.avgUnitSize + ' m\u00B2'} />
+                <InfoRow label={t('rowMinSize')}    value={data.minUnitSize + ' m\u00B2'} />
+                <InfoRow label={t('rowMaxSize')}    value={data.maxUnitSize + ' m\u00B2'} />
+                <InfoRow label={t('rowParking')}    value={data.parkingSpaces} />
+                <InfoRow label={t('rowYearBuilt')}  value={data.yearBuilt} />
               </div>
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 8, paddingTop: 8 }}>
-                <InfoRow label="Tikinti növü" value={data.construction} />
+                <InfoRow label={t('rowConstruction')} value={construction} />
               </div>
             </Card>
           </Section>
 
           {/* ═══ OFİSLƏR ═══ */}
-          <Section title="Ofislər" icon={'\u{1F4BC}'}>
+          <Section title={t('secOffices')} icon={'\u{1F4BC}'}>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 10 }}>
-              1-3-cü mərtəbələrdə {data.offices.length} ofis sahəsi
+              {t('officeCount', { n: data.offices.length })}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {data.offices.map((o, i) => (
                 <div key={i} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 10px',
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.04)',
-                  fontSize: 12,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '8px 10px', background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)', fontSize: 12,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: '50%',
-                      background: o.active ? '#10B981' : '#EF4444',
-                      flexShrink: 0,
-                    }} />
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: o.active ? '#10B981' : '#EF4444', flexShrink: 0 }} />
                     <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>{o.name}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 12, color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
-                    <span>Mərtəbə {o.floor}</span>
+                    <span>{t('officeFloor')} {o.floor}</span>
                     <span>{o.area} m{'\u00B2'}</span>
                   </div>
                 </div>
@@ -395,31 +344,31 @@ export default function Sidebar() {
           </Section>
 
           {/* ═══ RESTORANLAR ═══ */}
-          <Section title="Restoranlar" icon={'\u{1F37D}\u{FE0F}'}>
+          <Section title={t('secRestaurants')} icon={'\u{1F37D}\u{FE0F}'}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {data.restaurants.map((r, i) => {
                 const rOpen = isOpenNow(r.open, r.close);
+                const cuisineStr = RESTAURANT_CUISINES[lang][r.cuisineIdx % RESTAURANT_CUISINES[lang].length];
                 return (
                   <Card key={i}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>{r.name}</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>
+                          {RESTAURANT_NAMES[r.nameIdx]}
+                        </div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>
-                          {r.cuisine} {'\u2022'} Mərtəbə {r.floor}
+                          {cuisineStr} {'\u2022'} {t('restFloor')} {r.floor}
                         </div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>
-                          {r.area} m{'\u00B2'} {'\u2022'} {r.capacity} oturacaq
+                          {r.area} m{'\u00B2'} {'\u2022'} {r.capacity} {t('restSeats')}
                         </div>
                       </div>
                       <span style={{
-                        padding: '2px 8px',
-                        borderRadius: 10,
-                        fontSize: 10,
-                        fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600,
                         background: rOpen ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
                         color: rOpen ? '#10B981' : '#EF4444',
                       }}>
-                        {rOpen ? 'Açıqdır' : 'Bağlıdır'}
+                        {rOpen ? t('restOpen') : t('restClosed')}
                       </span>
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>
@@ -432,34 +381,32 @@ export default function Sidebar() {
           </Section>
 
           {/* ═══ İMKANLAR ═══ */}
-          <Section title="İmkanlar" icon={'\u2728'}>
+          <Section title={t('secAmenities')} icon={'\u2728'}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {data.amenities.map((a, i) => (
-                <span key={i} style={{
-                  padding: '5px 10px',
-                  borderRadius: 8,
-                  fontSize: 11,
-                  fontWeight: 500,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.75)',
-                }}>
-                  {a}
-                </span>
-              ))}
+              {data.amenityIndices.map((idx, i) => {
+                const am = AMENITIES_DATA[lang][idx];
+                return (
+                  <span key={i} style={{
+                    padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 500,
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.75)',
+                  }}>
+                    {am.icon} {am.label}
+                  </span>
+                );
+              })}
             </div>
           </Section>
 
           {/* ═══ ƏLAQƏ ═══ */}
-          <Section title="Əlaqə" icon={'\u{1F4DE}'}>
+          <Section title={t('secContact')} icon={'\u{1F4DE}'}>
             <Card>
-              <InfoRow label="Telefon" value={data.phone} />
-              <InfoRow label="E-poçt" value={'info@' + slug + '.az'} />
-              <InfoRow label="Vebsayt" value={'www.' + slug + '.az'} />
+              <InfoRow label={t('contactPhone')}   value={data.phone} />
+              <InfoRow label={t('contactEmail')}   value={'info@' + slug + '.az'} />
+              <InfoRow label={t('contactWebsite')} value={'www.' + slug + '.az'} />
             </Card>
           </Section>
 
-          {/* bottom spacer */}
           <div style={{ height: 24, flexShrink: 0 }} />
         </motion.div>
       )}

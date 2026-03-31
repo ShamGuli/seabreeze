@@ -2,12 +2,14 @@
 
 import { useRef } from 'react';
 import * as Cesium from 'cesium';
+import { useLang } from '@/context/LanguageContext';
 
 interface MyLocationButtonProps {
   viewer: Cesium.Viewer | null;
 }
 
 export default function MyLocationButton({ viewer }: MyLocationButtonProps) {
+  const { t } = useLang();
   const locationEntityRef = useRef<Cesium.Entity | null>(null);
 
   function handleMyLocation() {
@@ -106,7 +108,7 @@ export default function MyLocationButton({ viewer }: MyLocationButtonProps) {
       },
       (error) => {
         console.error('Location error:', error);
-        alert('Location access denied');
+        alert(t('locationDenied'));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -134,7 +136,7 @@ export default function MyLocationButton({ viewer }: MyLocationButtonProps) {
       }}
       onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(66,133,244,0.5)')}
       onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(0,0,0,0.7)')}
-      title="My Location"
+      title={t('myLocation')}
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="1.5" fill="none" />
