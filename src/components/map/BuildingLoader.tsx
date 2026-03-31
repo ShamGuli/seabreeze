@@ -82,7 +82,7 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
               cart.longitude, cart.latitude, cart.height
             );
             const shifted = Cesium.Cartesian3.fromRadians(
-              cart.longitude, cart.latitude, cart.height - 3.0
+              cart.longitude, cart.latitude, cart.height - 0.5
             );
             const offset = Cesium.Cartesian3.subtract(
               shifted, surface, new Cesium.Cartesian3()
