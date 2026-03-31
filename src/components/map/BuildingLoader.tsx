@@ -74,6 +74,21 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
               loadSiblings: false,
             });
             tileset.shadows = Cesium.ShadowMode.ENABLED;
+
+            // Ground plane-i terrain altına batır (boz səthi gizlət)
+            const center = tileset.boundingSphere.center;
+            const cart = Cesium.Cartographic.fromCartesian(center);
+            const surface = Cesium.Cartesian3.fromRadians(
+              cart.longitude, cart.latitude, cart.height
+            );
+            const shifted = Cesium.Cartesian3.fromRadians(
+              cart.longitude, cart.latitude, cart.height - 3.0
+            );
+            const offset = Cesium.Cartesian3.subtract(
+              shifted, surface, new Cesium.Cartesian3()
+            );
+            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+
             viewer.scene.primitives.add(tileset);
           } catch (err) {
             console.error(`Failed to load tileset ${assetId}:`, err);
