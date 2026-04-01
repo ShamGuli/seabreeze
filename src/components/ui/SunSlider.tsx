@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { useLang } from '@/context/LanguageContext';
 
@@ -8,25 +8,65 @@ interface SunSliderProps {
   viewer: Cesium.Viewer | null;
 }
 
+interface SavedState {
+  currentTime: Cesium.JulianDate;
+  shouldAnimate: boolean;
+  enableLighting: boolean;
+  shadows: boolean;
+  lightIntensity: number;
+}
+
 export default function SunSlider({ viewer }: SunSliderProps) {
   const { t } = useLang();
   const [currentHour, setCurrentHour] = useState(12);
   const [isSliderVisible, setIsSliderVisible] = useState(false);
   const [shadowsEnabled, setShadowsEnabled] = useState(false);
+  const savedStateRef = useRef<SavedState | null>(null);
 
-  function enableShadows() {
-    if (!viewer || shadowsEnabled) return;
+  function activateSunMode() {
+    if (!viewer) return;
+
+    // Save current Cesium state before enabling sun mode
+    if (!savedStateRef.current) {
+      savedStateRef.current = {
+        currentTime: viewer.clock.currentTime.clone(),
+        shouldAnimate: viewer.clock.shouldAnimate,
+        enableLighting: viewer.scene.globe.enableLighting,
+        shadows: viewer.shadows,
+        lightIntensity: viewer.scene.light instanceof Cesium.SunLight
+          ? viewer.scene.light.intensity : 2.0,
+      };
+    }
+
+    // Enable shadows and lighting
     viewer.shadows = true;
     viewer.shadowMap.softShadows = true;
     viewer.shadowMap.darkness = 0.6;
     viewer.shadowMap.size = 2048;
     viewer.scene.globe.enableLighting = true;
     setShadowsEnabled(true);
+
+  }
+
+  function deactivateSunMode() {
+    if (!viewer) return;
+
+    const saved = savedStateRef.current;
+    if (saved) {
+      viewer.clock.currentTime = saved.currentTime;
+      viewer.clock.shouldAnimate = saved.shouldAnimate;
+      viewer.scene.globe.enableLighting = saved.enableLighting;
+      viewer.shadows = saved.shadows;
+      viewer.scene.light = new Cesium.SunLight({ intensity: saved.lightIntensity });
+      savedStateRef.current = null;
+    }
+
+    setShadowsEnabled(false);
+    viewer.scene.requestRender();
   }
 
   function updateSunPosition(hour: number) {
     if (!viewer) return;
-    enableShadows();
     setCurrentHour(hour);
     const today = new Date();
     const year = today.getFullYear();
@@ -39,6 +79,7 @@ export default function SunSlider({ viewer }: SunSliderProps) {
       'T' + String(wholeHour).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':00Z';
     viewer.clock.currentTime = Cesium.JulianDate.fromIso8601(dateString);
     viewer.clock.shouldAnimate = false;
+    viewer.scene.requestRender();
   }
 
   function getTimeLabel(hour: number) {
@@ -74,7 +115,16 @@ export default function SunSlider({ viewer }: SunSliderProps) {
   return (
     <>
       <button
-        onClick={() => { setIsSliderVisible(!isSliderVisible); if (!isSliderVisible) enableShadows(); }}
+        onClick={() => {
+          if (isSliderVisible) {
+            deactivateSunMode();
+            setIsSliderVisible(false);
+          } else {
+            setIsSliderVisible(true);
+            activateSunMode();
+            updateSunPosition(currentHour);
+          }
+        }}
         style={{
           position: 'absolute', bottom: '30px', right: '16px',
           width: '40px', height: '40px', borderRadius: '50%',

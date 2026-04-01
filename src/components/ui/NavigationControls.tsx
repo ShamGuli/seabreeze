@@ -129,9 +129,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
         onMouseLeave={e => { if (!isOrbiting) e.currentTarget.style.background = 'rgba(15, 15, 30, 0.85)'; }}
         title="3D Orbit"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
         </svg>
       </button>
 
