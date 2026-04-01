@@ -51,15 +51,8 @@ export default function CesiumMap() {
       maximumRenderTimeChange: Infinity,
     });
 
-    // Cesium World Terrain — real yer səthi (Ion Stories ilə eyni)
-    (async () => {
-      try {
-        const terrain = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
-        if (!v.isDestroyed()) v.terrainProvider = terrain;
-      } catch {
-        console.warn('Terrain yüklənmədi');
-      }
-    })();
+    // Flat terrain — düz yer səthi
+    v.terrainProvider = new Cesium.EllipsoidTerrainProvider();
 
     // Google Maps 2D Satellite imagery
     (async () => {
@@ -71,6 +64,7 @@ export default function CesiumMap() {
 
     // Globe settings
     v.scene.globe.depthTestAgainstTerrain = true;
+    v.scene.globe.show = true;
     v.scene.fog.enabled = true;
     v.scene.globe.tileCacheSize = 100;
 

@@ -24,8 +24,6 @@ async function fetchIonAssetIds(token: string): Promise<number[]> {
     }
 
   const data = await res.json();
-  // Skip Cesium global assets (OSM Buildings, Google 3D Tiles etc.)
-  // Only load user-uploaded assets (id > 4000000)
   const ids: number[] = (data.items ?? [])
     .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
     .map((item: any) => {
@@ -41,6 +39,10 @@ async function fetchIonAssetIds(token: string): Promise<number[]> {
   }
 }
 
+// Height offset: tileset ground plane-i globe səthi (0m) altına batırır.
+// Globe (satellite imagery) tileset landşaftını örtür, yalnız binalar görünür.
+const HEIGHT_OFFSET = 0;
+
 export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
   const loadedRef = useRef(false);
 
@@ -52,8 +54,6 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
       if (!viewer) return;
 
       const token = getToken('TOKEN_3');
-
-      // Fetch all 3DTILES assets from the Ion account dynamically
       const assetIds = await fetchIonAssetIds(token);
 
       await Promise.allSettled(
@@ -72,11 +72,14 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
               loadSiblings: false,
             });
 
+            // Push tileset down so ground plane goes below globe surface (0m)
             const center = tileset.boundingSphere.center;
             const cart = Cesium.Cartographic.fromCartesian(center);
-            const surface = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height);
-            const shifted = Cesium.Cartesian3.fromRadians(cart.longitude, cart.latitude, cart.height - 33.0);
-            const offset = Cesium.Cartesian3.subtract(shifted, surface, new Cesium.Cartesian3());
+            console.log(`Tileset ${assetId}: center height = ${cart.height.toFixed(1)}m`);
+            const shifted = Cesium.Cartesian3.fromRadians(
+              cart.longitude, cart.latitude, cart.height + HEIGHT_OFFSET
+            );
+            const offset = Cesium.Cartesian3.subtract(shifted, center, new Cesium.Cartesian3());
             tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
 
             viewer.scene.primitives.add(tileset);

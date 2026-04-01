@@ -50,18 +50,16 @@ export async function loadIonTileset(
   });
   const tileset = await Cesium.Cesium3DTileset.fromUrl(resource);
 
-  // Push model down to hide built-in ground plane beneath satellite imagery
-  if (heightOffset !== 0) {
-    const center = tileset.boundingSphere.center;
-    const carto = Cesium.Cartographic.fromCartesian(center);
-    const adjusted = Cesium.Cartesian3.fromRadians(
-      carto.longitude,
-      carto.latitude,
-      carto.height + heightOffset,
-    );
-    const offset = Cesium.Cartesian3.subtract(adjusted, center, new Cesium.Cartesian3());
-    tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
-  }
+  // Tileset-i ellipsoid səthinə (0m) yapışdır + istəyə görə heightOffset
+  const center = tileset.boundingSphere.center;
+  const carto = Cesium.Cartographic.fromCartesian(center);
+  const adjusted = Cesium.Cartesian3.fromRadians(
+    carto.longitude,
+    carto.latitude,
+    heightOffset,
+  );
+  const offset = Cesium.Cartesian3.subtract(adjusted, center, new Cesium.Cartesian3());
+  tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
 
   viewer.scene.primitives.add(tileset);
 
