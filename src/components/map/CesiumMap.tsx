@@ -25,6 +25,7 @@ export default function CesiumMap() {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
   const setFlyToOverview = useMapStore((s) => s.setFlyToOverview);
+  const is3D = useMapStore((s) => s.is3D);
 
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) return;
@@ -88,7 +89,7 @@ export default function CesiumMap() {
 
     // Initial camera: top-down view centered on resort
     v.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(49.950, 40.584, 5000),
+      destination: Cesium.Cartesian3.fromDegrees(49.940, 40.582, 5000),
       orientation: {
         heading: Cesium.Math.toRadians(0),
         pitch: Cesium.Math.toRadians(-90),
@@ -103,7 +104,7 @@ export default function CesiumMap() {
     setFlyToOverview(() => {
       if (v && !v.isDestroyed()) {
         v.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(49.950, 40.584, 5000),
+          destination: Cesium.Cartesian3.fromDegrees(49.940, 40.582, 5000),
           orientation: {
             heading: Cesium.Math.toRadians(0),
             pitch: Cesium.Math.toRadians(-90),
@@ -131,7 +132,7 @@ export default function CesiumMap() {
       <SearchBar onFlyTo={(b) => viewer && flyToBuilding(viewer, b)} />
       <CategoryFilter />
       <MyLocationButton viewer={viewer} />
-      <SunSlider viewer={viewer} />
+      {is3D && <SunSlider viewer={viewer} />}
       <LanguageSwitcher />
       <NavigationControls viewer={viewer} />
       <Sidebar />

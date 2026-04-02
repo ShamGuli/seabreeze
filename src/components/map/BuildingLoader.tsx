@@ -3,15 +3,12 @@
 import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { getToken } from '@/utils/cesiumConfig';
+import { useMapStore } from '@/store/mapStore';
 
 interface BuildingLoaderProps {
   viewer: Cesium.Viewer | null;
 }
 
-/**
- * Fetches all 3DTILES assets from a Cesium Ion account via REST API.
- * When assets are added/removed on Ion, no code change needed — auto-syncs.
- */
 async function fetchIonAssetIds(token: string): Promise<number[]> {
   try {
     const res = await fetch('https://api.cesium.com/v1/assets?limit=999', {
@@ -39,59 +36,77 @@ async function fetchIonAssetIds(token: string): Promise<number[]> {
   }
 }
 
-// Height offset: tileset ground plane-i globe səthi (0m) altına batırır.
-// Globe (satellite imagery) tileset landşaftını örtür, yalnız binalar görünür.
 const HEIGHT_OFFSET = 0;
 
 export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
+  const tilesetsRef = useRef<Cesium.Cesium3DTileset[]>([]);
   const loadedRef = useRef(false);
+  const is3D = useMapStore((s) => s.is3D);
+  const setIs3DLoading = useMapStore((s) => s.setIs3DLoading);
 
   useEffect(() => {
-    if (!viewer || loadedRef.current) return;
-    loadedRef.current = true;
+    if (!viewer) return;
 
-    async function loadAllModels() {
-      if (!viewer) return;
+    if (is3D) {
+      if (!loadedRef.current) {
+        // İlk dəfə: tileset-ləri yüklə
+        loadedRef.current = true;
+        setIs3DLoading(true);
 
-      const token = getToken('TOKEN_3');
-      const assetIds = await fetchIonAssetIds(token);
+        (async () => {
+          const token = getToken('TOKEN_3');
+          const assetIds = await fetchIonAssetIds(token);
 
-      await Promise.allSettled(
-        assetIds.map(async (assetId) => {
-          try {
-            const resource = await Cesium.IonResource.fromAssetId(assetId, {
-              accessToken: token,
-            });
-            const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
-              maximumScreenSpaceError: 24,
-              skipLevelOfDetail: true,
-              baseScreenSpaceError: 1024,
-              skipScreenSpaceErrorFactor: 16,
-              skipLevels: 1,
-              immediatelyLoadDesiredLevelOfDetail: false,
-              loadSiblings: false,
-            });
+          const tilesets: Cesium.Cesium3DTileset[] = [];
+          await Promise.allSettled(
+            assetIds.map(async (assetId) => {
+              try {
+                const resource = await Cesium.IonResource.fromAssetId(assetId, {
+                  accessToken: token,
+                });
+                const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
+                  maximumScreenSpaceError: 24,
+                  skipLevelOfDetail: true,
+                  baseScreenSpaceError: 1024,
+                  skipScreenSpaceErrorFactor: 16,
+                  skipLevels: 1,
+                  immediatelyLoadDesiredLevelOfDetail: false,
+                  loadSiblings: false,
+                });
 
-            // Push tileset down so ground plane goes below globe surface (0m)
-            const center = tileset.boundingSphere.center;
-            const cart = Cesium.Cartographic.fromCartesian(center);
-            console.log(`Tileset ${assetId}: center height = ${cart.height.toFixed(1)}m`);
-            const shifted = Cesium.Cartesian3.fromRadians(
-              cart.longitude, cart.latitude, cart.height + HEIGHT_OFFSET
-            );
-            const offset = Cesium.Cartesian3.subtract(shifted, center, new Cesium.Cartesian3());
-            tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+                if (HEIGHT_OFFSET !== 0) {
+                  const center = tileset.boundingSphere.center;
+                  const cart = Cesium.Cartographic.fromCartesian(center);
+                  const shifted = Cesium.Cartesian3.fromRadians(
+                    cart.longitude, cart.latitude, cart.height + HEIGHT_OFFSET
+                  );
+                  const offset = Cesium.Cartesian3.subtract(shifted, center, new Cesium.Cartesian3());
+                  tileset.modelMatrix = Cesium.Matrix4.fromTranslation(offset);
+                }
 
-            viewer.scene.primitives.add(tileset);
-          } catch (err) {
-            console.error(`Failed to load tileset ${assetId}:`, err);
-          }
-        })
-      );
+                viewer.scene.primitives.add(tileset);
+                tilesets.push(tileset);
+              } catch (err) {
+                console.error(`Failed to load tileset ${assetId}:`, err);
+              }
+            })
+          );
+
+          tilesetsRef.current = tilesets;
+          setIs3DLoading(false);
+          viewer.scene.requestRender();
+        })();
+      } else {
+        // Sonrakı: show = true
+        tilesetsRef.current.forEach((t) => { t.show = true; });
+        viewer.scene.requestRender();
+      }
+    } else {
+      // 2D: tileset-ləri gizlət
+      tilesetsRef.current.forEach((t) => { t.show = false; });
+      if (viewer.scene) viewer.scene.requestRender();
     }
-
-    loadAllModels();
-  }, [viewer]);
+  }, [viewer, is3D]);
 
   return null;
 }
