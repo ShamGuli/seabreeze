@@ -5,6 +5,7 @@ const TOKENS: Record<string, string> = {
   TOKEN_1: process.env.NEXT_PUBLIC_CESIUM_TOKEN_1 || '',
   TOKEN_2: process.env.NEXT_PUBLIC_CESIUM_TOKEN_2 || '',
   TOKEN_3: process.env.NEXT_PUBLIC_CESIUM_TOKEN_3 || '',
+  TOKEN_4: process.env.NEXT_PUBLIC_CESIUM_TOKEN_4 || '',
   ION_DEFAULT: process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '',
 };
 

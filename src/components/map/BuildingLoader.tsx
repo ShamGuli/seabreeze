@@ -54,12 +54,22 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
         setIs3DLoading(true);
 
         (async () => {
-          const token = getToken('TOKEN_3');
-          const assetIds = await fetchIonAssetIds(token);
+          // Hər iki token-dən asset-ləri paralel yüklə
+          const tokenKeys = ['TOKEN_3', 'TOKEN_4'];
+          const allAssets: { assetId: number; token: string }[] = [];
+
+          await Promise.all(
+            tokenKeys.map(async (key) => {
+              const token = getToken(key);
+              if (!token) return;
+              const ids = await fetchIonAssetIds(token);
+              ids.forEach((id) => allAssets.push({ assetId: id, token }));
+            })
+          );
 
           const tilesets: Cesium.Cesium3DTileset[] = [];
           await Promise.allSettled(
-            assetIds.map(async (assetId) => {
+            allAssets.map(async ({ assetId, token }) => {
               try {
                 const resource = await Cesium.IonResource.fromAssetId(assetId, {
                   accessToken: token,
