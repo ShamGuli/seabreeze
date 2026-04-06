@@ -54,7 +54,7 @@ export default function LoadingScreen() {
           letterSpacing: 2,
         }}
       >
-        Interactive Resort Map
+        SEA BREEZE interactive map
       </p>
       <div
         style={{

@@ -6,7 +6,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SeaBreeze Interactive Map',
+  title: 'SEA BREEZE interactive map',
   description: 'Interactive 3D map of SeaBreeze resort city, Baku, Azerbaijan',
 };
 
