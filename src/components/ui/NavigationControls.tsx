@@ -16,6 +16,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
   const setIs3D = useMapStore((s) => s.setIs3D);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
   const setShowBasePlan = useMapStore((s) => s.setShowBasePlan);
+  const showCommunication = useMapStore((s) => s.showCommunication);
+  const setShowCommunication = useMapStore((s) => s.setShowCommunication);
 
   // ── Zoom ──
   const zoom = useCallback((inOut: 'in' | 'out') => {
@@ -259,6 +261,31 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
           <line x1="3" y1="15" x2="21" y2="15" />
           <line x1="9" y1="3" x2="9" y2="21" />
           <line x1="15" y1="3" x2="15" y2="21" />
+        </svg>
+      </button>
+
+      {/* Communication Toggle */}
+      <button
+        onClick={() => setShowCommunication(!showCommunication)}
+        style={{
+          ...btnStyle,
+          marginTop: 4,
+          background: showCommunication ? 'rgba(0,150,255,0.5)' : 'rgba(15, 15, 30, 0.85)',
+        }}
+        onMouseEnter={e => { if (!showCommunication) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+        onMouseLeave={e => { if (!showCommunication) e.currentTarget.style.background = 'rgba(15, 15, 30, 0.85)'; }}
+        title="Kommunikasiya"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          {/* Signal tower */}
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="8" y1="20" x2="16" y2="20" />
+          {/* Antenna */}
+          <line x1="12" y1="10" x2="9" y2="7" />
+          <line x1="12" y1="10" x2="15" y2="7" />
+          {/* Signal waves */}
+          <path d="M7 5a7 7 0 0 1 10 0" />
+          <path d="M9 7.5a4 4 0 0 1 6 0" />
         </svg>
       </button>
     </div>

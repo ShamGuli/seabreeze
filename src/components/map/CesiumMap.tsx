@@ -19,6 +19,7 @@ import SunSlider from '../ui/SunSlider';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import NavigationControls from '../ui/NavigationControls';
 import ImageryOverlay from './ImageryOverlay';
+import CommunicationOverlay from './CommunicationOverlay';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -137,6 +138,7 @@ export default function CesiumMap() {
       <LanguageSwitcher />
       <NavigationControls viewer={viewer} />
       <ImageryOverlay viewer={viewer} />
+      <CommunicationOverlay viewer={viewer} />
       <Sidebar />
     </div>
   );
