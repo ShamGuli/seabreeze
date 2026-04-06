@@ -18,6 +18,7 @@ import MyLocationButton from '../ui/MyLocationButton';
 import SunSlider from '../ui/SunSlider';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import NavigationControls from '../ui/NavigationControls';
+import ImageryOverlay from './ImageryOverlay';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -135,6 +136,7 @@ export default function CesiumMap() {
       {is3D && <SunSlider viewer={viewer} />}
       <LanguageSwitcher />
       <NavigationControls viewer={viewer} />
+      <ImageryOverlay viewer={viewer} />
       <Sidebar />
     </div>
   );

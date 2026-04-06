@@ -1,77 +1,69 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
+import { useMapStore } from '@/store/mapStore';
 
 interface ImageryOverlayProps {
   viewer: Cesium.Viewer | null;
 }
 
-// Rotated corner coordinates matching the resort's actual orientation
-const OVERLAY_CORNERS = Cesium.Cartesian3.fromDegreesArray([
-  49.900, 40.570,  // SW
-  49.993, 40.582,  // SE
-  49.985, 40.596,  // NE
-  49.892, 40.584,  // NW
-]);
+const BASEPLAN_TOKEN = process.env.NEXT_PUBLIC_CESIUM_BASEPLAN_TOKEN || '';
+
+// Cesium Ion imagery asset IDs for the base plan layers
+const BASEPLAN_ASSET_IDS = [4594912, 4595054, 4595004, 4594980, 4599368];
 
 export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
-  const entityRef = useRef<Cesium.Entity | null>(null);
-  const [visible, setVisible] = useState(false);
+  const layersRef = useRef<Cesium.ImageryLayer[]>([]);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
 
   useEffect(() => {
-    if (!viewer || entityRef.current) return;
+    if (!viewer || viewer.isDestroyed()) return;
 
-    const entity = viewer.entities.add({
-      polygon: {
-        hierarchy: new Cesium.PolygonHierarchy(OVERLAY_CORNERS),
-        material: new Cesium.ImageMaterialProperty({
-          image: '/textures/master-plan-rotated.webp',
-          transparent: true,
-        }),
-        classificationType: Cesium.ClassificationType.BOTH,
-        stRotation: 0,
-      },
-      show: false,
-    });
+    if (showBasePlan && layersRef.current.length === 0) {
+      // Load all base plan imagery layers
+      const resource = new Cesium.Resource({
+        url: 'https://api.cesium.com/',
+        headers: { Authorization: `Bearer ${BASEPLAN_TOKEN}` },
+      });
 
-    entityRef.current = entity;
+      BASEPLAN_ASSET_IDS.forEach(async (assetId) => {
+        try {
+          const provider = await Cesium.IonImageryProvider.fromAssetId(assetId, {
+            accessToken: BASEPLAN_TOKEN,
+          });
+          if (viewer.isDestroyed()) return;
+          const layer = viewer.imageryLayers.addImageryProvider(provider);
+          layer.alpha = 0.85;
+          layersRef.current.push(layer);
+          viewer.scene.requestRender();
+        } catch (err) {
+          console.warn(`Failed to load base plan asset ${assetId}:`, err);
+        }
+      });
+    } else if (!showBasePlan && layersRef.current.length > 0) {
+      // Remove all base plan layers
+      layersRef.current.forEach((layer) => {
+        if (!viewer.isDestroyed()) {
+          viewer.imageryLayers.remove(layer, true);
+        }
+      });
+      layersRef.current = [];
+      if (!viewer.isDestroyed()) viewer.scene.requestRender();
+    }
+  }, [viewer, showBasePlan]);
 
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      if (entityRef.current && viewer && !viewer.isDestroyed()) {
-        viewer.entities.remove(entityRef.current);
-        entityRef.current = null;
+      if (viewer && !viewer.isDestroyed()) {
+        layersRef.current.forEach((layer) => {
+          viewer.imageryLayers.remove(layer, true);
+        });
+        layersRef.current = [];
       }
     };
   }, [viewer]);
 
-  useEffect(() => {
-    if (entityRef.current) {
-      entityRef.current.show = visible;
-    }
-  }, [visible]);
-
-  return (
-    <button
-      onClick={() => setVisible((v) => !v)}
-      style={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        zIndex: 10,
-        padding: '8px 16px',
-        borderRadius: 8,
-        border: 'none',
-        background: visible ? '#3B82F6' : 'rgba(30, 30, 50, 0.85)',
-        color: 'white',
-        fontSize: 14,
-        fontWeight: 500,
-        cursor: 'pointer',
-        backdropFilter: 'blur(8px)',
-        transition: 'background 0.2s',
-      }}
-    >
-      {visible ? 'Hide Master Plan' : 'Show Master Plan'}
-    </button>
-  );
+  return null;
 }

@@ -10,6 +10,7 @@ interface MapState {
   flyToOverview: (() => void) | null;
   is3D: boolean;
   is3DLoading: boolean;
+  showBasePlan: boolean;
   setSelectedBuilding: (building: Building | null) => void;
   setActiveCategory: (category: BuildingCategory | null) => void;
   setSearchQuery: (query: string) => void;
@@ -17,6 +18,7 @@ interface MapState {
   setFlyToOverview: (fn: (() => void) | null) => void;
   setIs3D: (val: boolean) => void;
   setIs3DLoading: (val: boolean) => void;
+  setShowBasePlan: (val: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -27,6 +29,7 @@ export const useMapStore = create<MapState>((set) => ({
   flyToOverview: null,
   is3D: false,
   is3DLoading: false,
+  showBasePlan: false,
   setSelectedBuilding: (building) => set({ selectedBuilding: building }),
   setActiveCategory: (category) => set({ activeCategory: category }),
   setSearchQuery: (query) => set({ searchQuery: query }),
@@ -34,4 +37,5 @@ export const useMapStore = create<MapState>((set) => ({
   setFlyToOverview: (fn) => set({ flyToOverview: fn }),
   setIs3D: (val) => set({ is3D: val }),
   setIs3DLoading: (val) => set({ is3DLoading: val }),
+  setShowBasePlan: (val) => set({ showBasePlan: val }),
 }));

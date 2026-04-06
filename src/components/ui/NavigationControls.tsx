@@ -14,6 +14,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
   const is3D = useMapStore((s) => s.is3D);
   const is3DLoading = useMapStore((s) => s.is3DLoading);
   const setIs3D = useMapStore((s) => s.setIs3D);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
+  const setShowBasePlan = useMapStore((s) => s.setShowBasePlan);
 
   // ── Zoom ──
   const zoom = useCallback((inOut: 'in' | 'out') => {
@@ -237,6 +239,27 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
         title={is3D ? '2D görünüşə keç' : '3D görünüşə keç'}
       >
         {is3DLoading ? '...' : is3D ? '2D' : '3D'}
+      </button>
+
+      {/* Base Plan Toggle */}
+      <button
+        onClick={() => setShowBasePlan(!showBasePlan)}
+        style={{
+          ...btnStyle,
+          marginTop: 4,
+          background: showBasePlan ? 'rgba(0,150,255,0.5)' : 'rgba(15, 15, 30, 0.85)',
+        }}
+        onMouseEnter={e => { if (!showBasePlan) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+        onMouseLeave={e => { if (!showBasePlan) e.currentTarget.style.background = 'rgba(15, 15, 30, 0.85)'; }}
+        title="Baş Plan"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="9" y1="3" x2="9" y2="21" />
+          <line x1="15" y1="3" x2="15" y2="21" />
+        </svg>
       </button>
     </div>
   );
