@@ -67,6 +67,8 @@ export default function CategoryFilter() {
   const toggleCommWells = useMapStore((s) => s.toggleCommWells);
   const showCommLines = useMapStore((s) => s.showCommLines);
   const toggleCommLines = useMapStore((s) => s.toggleCommLines);
+  const showCategoryBar = useMapStore((s) => s.showCategoryBar);
+  const toggleCategoryBar = useMapStore((s) => s.toggleCategoryBar);
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
@@ -167,9 +169,6 @@ export default function CategoryFilter() {
   }
 
   // ═══ NORMAL MODE ═══
-  const showCategoryBar = useMapStore((s) => s.showCategoryBar);
-  const toggleCategoryBar = useMapStore((s) => s.toggleCategoryBar);
-
   return (
     <>
       {/* Info button — sol yuxarı */}
