@@ -148,12 +148,12 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
               entity.billboard = undefined as any;
               entity.point = new Cesium.PointGraphics({
                 color: color,
-                pixelSize: 10,
+                pixelSize: 8,
                 outlineColor: Cesium.Color.WHITE,
-                outlineWidth: 2,
+                outlineWidth: 1.5,
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                 disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                scaleByDistance: new Cesium.NearFarScalar(500, 1.0, 8000, 0.5),
+                scaleByDistance: new Cesium.NearFarScalar(300, 0.8, 3000, 0.15),
               });
               pointEntityIds.current.add(entity.id);
             }
