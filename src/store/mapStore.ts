@@ -18,7 +18,11 @@ interface MapState {
   showCommunication: boolean;
   activeCommFilters: CommFilterKey[];
   showCommWells: boolean;
+  showCommLines: boolean;
+  showCategoryBar: boolean;
   toggleCommWells: () => void;
+  toggleCommLines: () => void;
+  toggleCategoryBar: () => void;
   setSelectedBuilding: (building: Building | null) => void;
   setActiveCategory: (category: BuildingCategory | null) => void;
   setSearchQuery: (query: string) => void;
@@ -44,7 +48,11 @@ export const useMapStore = create<MapState>((set) => ({
   showCommunication: false,
   activeCommFilters: [...ALL_COMM],
   showCommWells: true,
+  showCommLines: true,
+  showCategoryBar: false,
   toggleCommWells: () => set((s) => ({ showCommWells: !s.showCommWells })),
+  toggleCommLines: () => set((s) => ({ showCommLines: !s.showCommLines })),
+  toggleCategoryBar: () => set((s) => ({ showCategoryBar: !s.showCategoryBar })),
   setSelectedBuilding: (building) => set({ selectedBuilding: building }),
   setActiveCategory: (category) => set({ activeCategory: category }),
   setSearchQuery: (query) => set({ searchQuery: query }),
@@ -54,7 +62,7 @@ export const useMapStore = create<MapState>((set) => ({
   setIs3DLoading: (val) => set({ is3DLoading: val }),
   setShowBasePlan: (val) => set(val ? { showBasePlan: true, is3D: false, showCommunication: false, selectedBuilding: null } : { showBasePlan: false }),
   setShowCommunication: (val) => set(val
-    ? { showCommunication: true, is3D: false, showBasePlan: false, activeCommFilters: [...ALL_COMM] }
+    ? { showCommunication: true, is3D: false, showBasePlan: false, activeCommFilters: [...ALL_COMM], showCommWells: true, showCommLines: true }
     : { showCommunication: false }
   ),
   toggleCommFilter: (key) => set((s) => {

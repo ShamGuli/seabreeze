@@ -256,11 +256,10 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
         title="Baş Plan"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <line x1="3" y1="9" x2="21" y2="9" />
-          <line x1="3" y1="15" x2="21" y2="15" />
-          <line x1="9" y1="3" x2="9" y2="21" />
-          <line x1="15" y1="3" x2="15" y2="21" />
+          {/* Map/Blueprint icon */}
+          <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z" />
+          <line x1="9" y1="3" x2="9" y2="18" />
+          <line x1="15" y1="6" x2="15" y2="21" />
         </svg>
       </button>
 
@@ -277,15 +276,15 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
         title="Kommunikasiya"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          {/* Signal tower */}
-          <line x1="12" y1="20" x2="12" y2="10" />
-          <line x1="8" y1="20" x2="16" y2="20" />
-          {/* Antenna */}
-          <line x1="12" y1="10" x2="9" y2="7" />
-          <line x1="12" y1="10" x2="15" y2="7" />
-          {/* Signal waves */}
-          <path d="M7 5a7 7 0 0 1 10 0" />
-          <path d="M9 7.5a4 4 0 0 1 6 0" />
+          {/* Pipe/utility network icon */}
+          <circle cx="5" cy="5" r="2" />
+          <circle cx="19" cy="5" r="2" />
+          <circle cx="5" cy="19" r="2" />
+          <circle cx="19" cy="19" r="2" />
+          <line x1="7" y1="5" x2="17" y2="5" />
+          <line x1="5" y1="7" x2="5" y2="17" />
+          <line x1="19" y1="7" x2="19" y2="17" />
+          <line x1="7" y1="19" x2="17" y2="19" />
         </svg>
       </button>
     </div>

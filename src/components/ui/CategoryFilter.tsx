@@ -65,6 +65,8 @@ export default function CategoryFilter() {
   const setAllCommFilters = useMapStore((s) => s.setAllCommFilters);
   const showCommWells = useMapStore((s) => s.showCommWells);
   const toggleCommWells = useMapStore((s) => s.toggleCommWells);
+  const showCommLines = useMapStore((s) => s.showCommLines);
+  const toggleCommLines = useMapStore((s) => s.toggleCommLines);
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
@@ -80,21 +82,23 @@ export default function CategoryFilter() {
         background: 'rgba(15,15,20,0.85)',
         backdropFilter: 'blur(12px)',
       }}>
+        {/* ON/OFF toggle */}
         <button
           onClick={() => setAllCommFilters(!allOn)}
           className="glow-btn"
           style={{
             padding: '6px 14px', borderRadius: 16,
-            border: '1.5px solid #4FD1C5',
-            background: allOn ? 'rgba(79, 209, 197, 0.45)' : 'rgba(25,25,30,0.9)',
+            border: `1.5px solid ${allOn ? '#4FD1C5' : '#EF4444'}`,
+            background: allOn ? 'rgba(79, 209, 197, 0.45)' : 'rgba(239, 68, 68, 0.35)',
             color: '#fff',
             fontSize: 13, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
           }}
         >
-          Hamısı
+          {allOn ? 'ON' : 'OFF'}
         </button>
 
+        {/* Category filters */}
         {COMM_GROUPS.map((g) => {
           const active = activeCommFilters.includes(g.key);
           return (
@@ -120,14 +124,35 @@ export default function CategoryFilter() {
           );
         })}
 
+        {/* ── Separator ── */}
+        <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+
+        {/* Xəttlər toggle */}
+        <button
+          onClick={toggleCommLines}
+          className="glow-btn"
+          style={{
+            padding: '6px 14px', borderRadius: 16,
+            border: 'none',
+            background: showCommLines ? '#10B981' : '#6B7280',
+            color: '#fff',
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 17l6-6 4 4 8-8" /></svg>
+          Xəttlər
+        </button>
+
         {/* Quyular toggle */}
         <button
           onClick={toggleCommWells}
           className="glow-btn"
           style={{
             padding: '6px 14px', borderRadius: 16,
-            border: '1.5px solid #fff',
-            background: showCommWells ? 'rgba(255,255,255,0.25)' : 'rgba(25,25,30,0.9)',
+            border: 'none',
+            background: showCommWells ? '#10B981' : '#6B7280',
             color: '#fff',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
@@ -142,53 +167,80 @@ export default function CategoryFilter() {
   }
 
   // ═══ NORMAL MODE ═══
+  const showCategoryBar = useMapStore((s) => s.showCategoryBar);
+  const toggleCategoryBar = useMapStore((s) => s.toggleCategoryBar);
+
   return (
-    <div className="animate-slide-up category-scroll" style={{
-      position: 'absolute', bottom: 24, left: 0, right: 0,
-      marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
-      zIndex: 20, display: 'flex', gap: 5, alignItems: 'center',
-      padding: '6px 8px', borderRadius: 18,
-      maxWidth: '96vw', overflowX: 'hidden',
-      background: 'rgba(15,15,20,0.85)',
-      backdropFilter: 'blur(12px)',
-    }}>
+    <>
+      {/* Info button — sol yuxarı */}
       <button
-        onClick={() => { setActiveCategory(null); if (markersHidden) toggleMarkersHidden(); }}
-        className="glow-btn"
+        onClick={toggleCategoryBar}
         style={{
-          padding: '6px 14px', borderRadius: 16,
-          border: '1.5px solid #4FD1C5',
-          background: !activeCategory && !markersHidden
-            ? 'rgba(79, 209, 197, 0.45)' : 'rgba(25,25,30,0.9)',
+          position: 'absolute', top: 16, left: 16, zIndex: 20,
+          width: 40, height: 40, borderRadius: '50%',
+          border: 'none',
+          background: showCategoryBar ? 'rgba(79, 209, 197, 0.9)' : 'rgba(15,15,20,0.85)',
+          backdropFilter: 'blur(12px)',
           color: '#fff',
-          fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          whiteSpace: 'nowrap' as const,
+          fontSize: 20, fontWeight: 700, fontStyle: 'italic', fontFamily: 'Georgia, serif',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'background 0.2s',
         }}
       >
-        {t('showAll') || 'All'}
+        i
       </button>
 
-      {CATEGORIES.map((cat) => {
-        const active = activeCategory === cat;
-        const color = CATEGORY_COLORS[cat];
-        return (
+      {/* Category bar — yalnız açıq olanda */}
+      {showCategoryBar && (
+        <div className="animate-slide-up category-scroll" style={{
+          position: 'absolute', bottom: 24, left: 0, right: 0,
+          marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
+          zIndex: 20, display: 'flex', gap: 5, alignItems: 'center',
+          padding: '6px 8px', borderRadius: 18,
+          maxWidth: '96vw', overflowX: 'hidden',
+          background: 'rgba(15,15,20,0.85)',
+          backdropFilter: 'blur(12px)',
+        }}>
           <button
-            key={cat}
+            onClick={() => { setActiveCategory(null); if (markersHidden) toggleMarkersHidden(); }}
             className="glow-btn"
-            onClick={() => { if (markersHidden) toggleMarkersHidden(); setActiveCategory(active ? null : cat); }}
             style={{
-              padding: '6px 12px', borderRadius: 16,
-              border: `1.5px solid ${color}`,
-              background: active ? color : 'rgba(25,25,30,0.9)',
+              padding: '6px 14px', borderRadius: 16,
+              border: '1.5px solid #4FD1C5',
+              background: !activeCategory && !markersHidden
+                ? 'rgba(79, 209, 197, 0.45)' : 'rgba(25,25,30,0.9)',
               color: '#fff',
-              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
               whiteSpace: 'nowrap' as const,
             }}
           >
-            {t(CAT_LABEL_KEYS[cat])}
+            {t('showAll') || 'All'}
           </button>
-        );
-      })}
-    </div>
+
+          {CATEGORIES.map((cat) => {
+            const active = activeCategory === cat;
+            const color = CATEGORY_COLORS[cat];
+            return (
+              <button
+                key={cat}
+                className="glow-btn"
+                onClick={() => { if (markersHidden) toggleMarkersHidden(); setActiveCategory(active ? null : cat); }}
+                style={{
+                  padding: '6px 12px', borderRadius: 16,
+                  border: `1.5px solid ${color}`,
+                  background: active ? color : 'rgba(25,25,30,0.9)',
+                  color: '#fff',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                  whiteSpace: 'nowrap' as const,
+                }}
+              >
+                {t(CAT_LABEL_KEYS[cat])}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }

@@ -71,10 +71,12 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   const dataSourceRef = useRef<Cesium.KmlDataSource | null>(null);
   const entityGroupMap = useRef<Map<string, CommFilterKey | 'always'>>(new Map());
   const pointEntityIds = useRef<Set<string>>(new Set());
+  const lineEntityIds = useRef<Set<string>>(new Set());
   const orthoLayerRef = useRef<Cesium.ImageryLayer | null>(null);
   const showCommunication = useMapStore((s) => s.showCommunication);
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
   const showCommWells = useMapStore((s) => s.showCommWells);
+  const showCommLines = useMapStore((s) => s.showCommLines);
 
   // ── Load / Unload KML ──
   useEffect(() => {
@@ -164,6 +166,7 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
               entity.polyline.width = new Cesium.ConstantProperty(3);
               entity.polyline.clampToGround = new Cesium.ConstantProperty(true);
               entity.polyline.arcType = new Cesium.ConstantProperty(Cesium.ArcType.GEODESIC);
+              lineEntityIds.current.add(entity.id);
             }
 
             // Polygons → colored fill
@@ -190,10 +193,12 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
       }
       dataSourceRef.current = null;
       entityGroupMap.current.clear();
+      pointEntityIds.current.clear();
+      lineEntityIds.current.clear();
     }
   }, [viewer, showCommunication]);
 
-  // ── Apply filters ──
+  // ── Apply filters (group + wells + lines) ──
   useEffect(() => {
     if (!dataSourceRef.current || !viewer || viewer.isDestroyed()) return;
 
@@ -204,12 +209,30 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
 
       if (group === 'always') {
         entity.show = true;
+        continue;
+      }
+
+      // Step 1: group filter must be active
+      const groupActive = activeCommFilters.includes(group);
+      if (!groupActive) {
+        entity.show = false;
+        continue;
+      }
+
+      // Step 2: check entity type toggles
+      const isWell = pointEntityIds.current.has(entity.id);
+      const isLine = lineEntityIds.current.has(entity.id);
+
+      if (isWell && !showCommWells) {
+        entity.show = false;
+      } else if (isLine && !showCommLines) {
+        entity.show = false;
       } else {
-        entity.show = activeCommFilters.includes(group);
+        entity.show = true;
       }
     }
     viewer.scene.requestRender();
-  }, [viewer, activeCommFilters]);
+  }, [viewer, activeCommFilters, showCommWells, showCommLines]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -224,6 +247,8 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           orthoLayerRef.current = null;
         }
         entityGroupMap.current.clear();
+        pointEntityIds.current.clear();
+        lineEntityIds.current.clear();
       }
     };
   }, [viewer]);
