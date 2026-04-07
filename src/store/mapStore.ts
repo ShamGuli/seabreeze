@@ -2,6 +2,10 @@ import { create } from 'zustand';
 import type { Building } from '@/data/buildings';
 import type { BuildingCategory } from '@/data/categories';
 
+export type CommFilterKey = 'elektrik' | 'drenaj' | 'kanalizasiya' | 'qaz' | 'su_icmeli' | 'su_texniki';
+
+const ALL_COMM: CommFilterKey[] = ['elektrik', 'drenaj', 'kanalizasiya', 'qaz', 'su_icmeli', 'su_texniki'];
+
 interface MapState {
   selectedBuilding: Building | null;
   activeCategory: BuildingCategory | null;
@@ -12,6 +16,9 @@ interface MapState {
   is3DLoading: boolean;
   showBasePlan: boolean;
   showCommunication: boolean;
+  activeCommFilters: CommFilterKey[];
+  showCommWells: boolean;
+  toggleCommWells: () => void;
   setSelectedBuilding: (building: Building | null) => void;
   setActiveCategory: (category: BuildingCategory | null) => void;
   setSearchQuery: (query: string) => void;
@@ -21,6 +28,8 @@ interface MapState {
   setIs3DLoading: (val: boolean) => void;
   setShowBasePlan: (val: boolean) => void;
   setShowCommunication: (val: boolean) => void;
+  toggleCommFilter: (key: CommFilterKey) => void;
+  setAllCommFilters: (on: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -33,14 +42,24 @@ export const useMapStore = create<MapState>((set) => ({
   is3DLoading: false,
   showBasePlan: false,
   showCommunication: false,
+  activeCommFilters: [...ALL_COMM],
+  showCommWells: true,
+  toggleCommWells: () => set((s) => ({ showCommWells: !s.showCommWells })),
   setSelectedBuilding: (building) => set({ selectedBuilding: building }),
   setActiveCategory: (category) => set({ activeCategory: category }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   toggleMarkersHidden: () => set((s) => ({ markersHidden: !s.markersHidden })),
   setFlyToOverview: (fn) => set({ flyToOverview: fn }),
-  // Mutual exclusion: enabling one disables the others
   setIs3D: (val) => set(val ? { is3D: true, showBasePlan: false, showCommunication: false } : { is3D: false }),
   setIs3DLoading: (val) => set({ is3DLoading: val }),
-  setShowBasePlan: (val) => set(val ? { showBasePlan: true, is3D: false, showCommunication: false } : { showBasePlan: false }),
-  setShowCommunication: (val) => set(val ? { showCommunication: true, is3D: false, showBasePlan: false } : { showCommunication: false }),
+  setShowBasePlan: (val) => set(val ? { showBasePlan: true, is3D: false, showCommunication: false, selectedBuilding: null } : { showBasePlan: false }),
+  setShowCommunication: (val) => set(val
+    ? { showCommunication: true, is3D: false, showBasePlan: false, activeCommFilters: [...ALL_COMM] }
+    : { showCommunication: false }
+  ),
+  toggleCommFilter: (key) => set((s) => {
+    const has = s.activeCommFilters.includes(key);
+    return { activeCommFilters: has ? s.activeCommFilters.filter(k => k !== key) : [...s.activeCommFilters, key] };
+  }),
+  setAllCommFilters: (on) => set({ activeCommFilters: on ? [...ALL_COMM] : [] }),
 }));

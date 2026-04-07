@@ -11,6 +11,9 @@ interface CommunicationOverlayProps {
 const COMM_TOKEN = process.env.NEXT_PUBLIC_CESIUM_COMM_TOKEN || '';
 const COMM_KML_ASSET_ID = 4599391;
 
+const ORTHO_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '';
+const ORTHO_ASSET_ID = 4250769;
+
 // ── Folder → Group mapping ──
 const FOLDER_TO_GROUP: Record<string, CommFilterKey> = {
   'Elektrik kanalı': 'elektrik',
@@ -67,14 +70,33 @@ function findGroup(entity: Cesium.Entity): CommFilterKey | 'always' | null {
 export default function CommunicationOverlay({ viewer }: CommunicationOverlayProps) {
   const dataSourceRef = useRef<Cesium.KmlDataSource | null>(null);
   const entityGroupMap = useRef<Map<string, CommFilterKey | 'always'>>(new Map());
+  const pointEntityIds = useRef<Set<string>>(new Set());
+  const orthoLayerRef = useRef<Cesium.ImageryLayer | null>(null);
   const showCommunication = useMapStore((s) => s.showCommunication);
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
+  const showCommWells = useMapStore((s) => s.showCommWells);
 
   // ── Load / Unload KML ──
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return;
 
     if (showCommunication && !dataSourceRef.current) {
+      // Load orthophoto background
+      (async () => {
+        try {
+          const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(ORTHO_ASSET_ID, {
+            accessToken: ORTHO_TOKEN,
+          });
+          if (viewer.isDestroyed()) return;
+          const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
+          layer.alpha = 1.0;
+          orthoLayerRef.current = layer;
+          viewer.scene.requestRender();
+        } catch (err) {
+          console.warn('Failed to load orthophoto:', err);
+        }
+      })();
+
       (async () => {
         try {
           const resource = await Cesium.IonResource.fromAssetId(COMM_KML_ASSET_ID, {
@@ -133,12 +155,15 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
                 disableDepthTestDistance: Number.POSITIVE_INFINITY,
                 scaleByDistance: new Cesium.NearFarScalar(500, 1.0, 8000, 0.5),
               });
+              pointEntityIds.current.add(entity.id);
             }
 
-            // Polylines → colored
+            // Polylines → colored, clamped to ground
             if (entity.polyline) {
               entity.polyline.material = new Cesium.ColorMaterialProperty(color.withAlpha(0.85));
               entity.polyline.width = new Cesium.ConstantProperty(3);
+              entity.polyline.clampToGround = new Cesium.ConstantProperty(true);
+              entity.polyline.arcType = new Cesium.ConstantProperty(Cesium.ArcType.GEODESIC);
             }
 
             // Polygons → colored fill
@@ -157,6 +182,10 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
     } else if (!showCommunication && dataSourceRef.current) {
       if (!viewer.isDestroyed()) {
         viewer.dataSources.remove(dataSourceRef.current, true);
+        if (orthoLayerRef.current) {
+          viewer.imageryLayers.remove(orthoLayerRef.current, true);
+          orthoLayerRef.current = null;
+        }
         viewer.scene.requestRender();
       }
       dataSourceRef.current = null;
@@ -185,9 +214,15 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (viewer && !viewer.isDestroyed() && dataSourceRef.current) {
-        viewer.dataSources.remove(dataSourceRef.current, true);
-        dataSourceRef.current = null;
+      if (viewer && !viewer.isDestroyed()) {
+        if (dataSourceRef.current) {
+          viewer.dataSources.remove(dataSourceRef.current, true);
+          dataSourceRef.current = null;
+        }
+        if (orthoLayerRef.current) {
+          viewer.imageryLayers.remove(orthoLayerRef.current, true);
+          orthoLayerRef.current = null;
+        }
         entityGroupMap.current.clear();
       }
     };

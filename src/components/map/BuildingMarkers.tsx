@@ -66,6 +66,8 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     // Click handler
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+      const state = useMapStore.getState();
+      if (state.showBasePlan || state.showCommunication) return;
       const picked = viewer.scene.pick(click.position);
       if (Cesium.defined(picked) && picked.id instanceof Cesium.Entity) {
         const entity = picked.id as Cesium.Entity;
@@ -82,6 +84,9 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     };
   }, [viewer, setSelectedBuilding]);
 
+  const showCommunication = useMapStore((s) => s.showCommunication);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
+
   // Filter entities by active category or hide all
   useEffect(() => {
     const map = entityMapRef.current;
@@ -90,13 +95,16 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     for (const building of buildings) {
       const entity = map.get(building.id);
       if (!entity) continue;
-      if (markersHidden) {
+      if (markersHidden || showCommunication || showBasePlan) {
         entity.show = false;
       } else {
         entity.show = activeCategory === null || building.category === activeCategory;
       }
     }
-  }, [activeCategory, markersHidden]);
+    if (viewer && !viewer.isDestroyed()) {
+      viewer.scene.requestRender();
+    }
+  }, [viewer, activeCategory, markersHidden, showCommunication, showBasePlan]);
 
   return null;
 }

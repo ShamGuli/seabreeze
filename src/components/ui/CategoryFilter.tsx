@@ -63,29 +63,33 @@ export default function CategoryFilter() {
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
   const toggleCommFilter = useMapStore((s) => s.toggleCommFilter);
   const setAllCommFilters = useMapStore((s) => s.setAllCommFilters);
+  const showCommWells = useMapStore((s) => s.showCommWells);
+  const toggleCommWells = useMapStore((s) => s.toggleCommWells);
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
     const allOn = activeCommFilters.length === COMM_GROUPS.length;
 
     return (
-      <div className="glass animate-slide-up category-scroll" style={{
+      <div className="animate-slide-up category-scroll" style={{
         position: 'absolute', bottom: 24, left: 0, right: 0,
         marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
-        zIndex: 20, display: 'flex', gap: 3, alignItems: 'center',
-        padding: '5px 6px', borderRadius: 18,
-        maxWidth: '90vw', overflowX: 'auto',
+        zIndex: 20, display: 'flex', gap: 5, alignItems: 'center',
+        padding: '6px 8px', borderRadius: 18,
+        maxWidth: '96vw', overflowX: 'hidden',
+        background: 'rgba(15,15,20,0.85)',
+        backdropFilter: 'blur(12px)',
       }}>
         <button
           onClick={() => setAllCommFilters(!allOn)}
           className="glow-btn"
           style={{
-            padding: '9px 18px', borderRadius: 13, border: 'none',
-            background: allOn ? 'rgba(79, 209, 197, 0.2)' : 'rgba(255,255,255,0.04)',
-            color: allOn ? '#4FD1C5' : 'rgba(255,255,255,0.55)',
+            padding: '6px 14px', borderRadius: 16,
+            border: '1.5px solid #4FD1C5',
+            background: allOn ? 'rgba(79, 209, 197, 0.45)' : 'rgba(25,25,30,0.9)',
+            color: '#fff',
             fontSize: 13, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
-            boxShadow: allOn ? '0 0 12px rgba(79,209,197,0.15)' : 'none',
           }}
         >
           Hamısı
@@ -99,22 +103,40 @@ export default function CategoryFilter() {
               className="glow-btn"
               onClick={() => toggleCommFilter(g.key)}
               style={{
-                padding: '7px 14px', borderRadius: 13, border: 'none',
-                background: active ? g.color : 'rgba(255,255,255,0.04)',
-                color: active ? 'white' : 'rgba(255,255,255,0.55)',
+                padding: '6px 12px', borderRadius: 16,
+                border: `1.5px solid ${g.color}`,
+                background: active ? g.color : 'rgba(25,25,30,0.9)',
+                color: '#fff',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 whiteSpace: 'nowrap' as const,
-                boxShadow: active ? `0 0 16px ${g.color}50` : 'none',
                 display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', color: active ? 'white' : g.color }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
                 {g.icon}
               </span>
               {g.label}
             </button>
           );
         })}
+
+        {/* Quyular toggle */}
+        <button
+          onClick={toggleCommWells}
+          className="glow-btn"
+          style={{
+            padding: '6px 14px', borderRadius: 16,
+            border: '1.5px solid #fff',
+            background: showCommWells ? 'rgba(255,255,255,0.25)' : 'rgba(25,25,30,0.9)',
+            color: '#fff',
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill={showCommWells ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="8" /></svg>
+          Quyular
+        </button>
       </div>
     );
   }
@@ -153,7 +175,7 @@ export default function CategoryFilter() {
           <button
             key={cat}
             className="glow-btn"
-            onClick={() => setActiveCategory(active ? null : cat)}
+            onClick={() => { if (markersHidden) toggleMarkersHidden(); setActiveCategory(active ? null : cat); }}
             style={{
               padding: '6px 12px', borderRadius: 16,
               border: `1.5px solid ${color}`,

@@ -145,6 +145,9 @@ export function classifyBuilding(name: string): BuildingCategory {
   if (/\bschool\b/.test(n) || /\buniversity\b/.test(n) || /\blandau\b/.test(n))
     return 'education';
 
+  // Light House 2 → residence (not landmark)
+  if (/\blight\s*house[-\s]*2\b/.test(n)) return 'residence';
+
   // Landmarks
   if (
     /\blight house\b/.test(n) ||

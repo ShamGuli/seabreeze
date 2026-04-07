@@ -710,7 +710,7 @@
     "area_ha": 0.4
   },
   {
-    "id": "garden-kotec",
+    "id": "garden-kotec-2",
     "name": "Garden kotec",
     "longitude": 49.976544,
     "latitude": 40.588451,
@@ -947,7 +947,7 @@
     "area_ha": 0.9
   },
   {
-    "id": "beach-club",
+    "id": "beach-club-2",
     "name": "Beach club",
     "longitude": 49.985798,
     "latitude": 40.592046,
@@ -968,7 +968,7 @@
     "area_ha": 0.8
   },
   {
-    "id": "light-house-2",
+    "id": "light-house-2-2",
     "name": "Light house-2.",
     "longitude": 49.986792,
     "latitude": 40.590551,
@@ -1016,7 +1016,7 @@
     "area_ha": 0.33
   },
   {
-    "id": "parking",
+    "id": "parking-2",
     "name": "Parking",
     "longitude": 49.988616,
     "latitude": 40.589601,
