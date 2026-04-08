@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'SEA BREEZE interactive map',
-  description: 'Interactive 3D map of SeaBreeze resort city, Baku, Azerbaijan',
+  description: 'Interactive 3D map of SEA BREEZE resort city, Baku, Azerbaijan',
 };
 
 export default function RootLayout({

@@ -93,30 +93,38 @@ export const T: TranslationMap = {
   weatherHeavyRain: { az: 'Güclü yağış',      ru: 'Ливень',            en: 'Heavy Rain'      },
   weatherSnow:      { az: 'Qar',              ru: 'Снег',              en: 'Snow'            },
   weatherSandstorm: { az: 'Qum fırtınası',    ru: 'Песчаная буря',    en: 'Sandstorm'       },
+
+  // ── AI Chat ──
+  chatTitle:       { az: 'SEA BREEZE Köməkçi',                              ru: 'Помощник SEA BREEZE',                                 en: 'SEA BREEZE Assistant'                               },
+  chatWelcome:     { az: 'Salam! SEA BREEZE haqqında nə bilmək istərdiniz?', ru: 'Здравствуйте! Что вы хотели бы узнать о SEA BREEZE?',  en: 'Hello! What would you like to know about SEA BREEZE?' },
+  chatPlaceholder: { az: 'Sualınızı yazın...',                              ru: 'Напишите ваш вопрос...',                               en: 'Type your question...'                              },
+  chatSend:        { az: 'Göndər',                                          ru: 'Отправить',                                           en: 'Send'                                               },
+  chatError:       { az: 'Xəta baş verdi. Yenidən cəhd edin.',             ru: 'Произошла ошибка. Попробуйте снова.',                  en: 'An error occurred. Please try again.'               },
+  chatPoweredBy:   { az: 'AI ilə dəstəklənir',                             ru: 'На базе ИИ',                                          en: 'Powered by AI'                                      },
 };
 
 // ── Sidebar data strings (multilingual) ──
 
 export const DESCRIPTIONS: Record<Lang, string[]> = {
   az: [
-    'SeaBreeze kurort zonasında yerləşən premium yaşayış kompleksi. Panoramik dəniz mənzərəsi və dünya səviyyəli infrastruktur təklif edir.',
+    'SEA BREEZE kurort zonasında yerləşən premium yaşayış kompleksi. Panoramik dəniz mənzərəsi və dünya səviyyəli infrastruktur təklif edir.',
     'Xəzər sahilində lüks yaşayış imkanı təqdim edən unikal layihə. Müasir dizayn və ekoloji materiallarla inşa edilib.',
     'Rahatlıq və zərifliyi birləşdirən eksklüziv sahil rezidensiyası. Birbaşa çimərliyə çıxış və kurort tipli xidmətlər mövcuddur.',
-    'SeaBreeze-in mərkəzində yerləşən müasir çoxfunksiyalı kompleks. Yaşayış rahatlığı ilə kommersiya imkanlarını birləşdirir.',
+    'SEA BREEZE-in mərkəzində yerləşən müasir çoxfunksiyalı kompleks. Yaşayış rahatlığı ilə kommersiya imkanlarını birləşdirir.',
     'Abşeron yarımadasında memarlıq şah əsəri. Döşəmədən tavana qədər pəncərələr Xəzər dənizinin heyrətamiz mənzərəsini açır.',
   ],
   ru: [
-    'Премиальный жилой комплекс в курортной зоне SeaBreeze. Предлагает панорамный вид на море и инфраструктуру мирового уровня.',
+    'Премиальный жилой комплекс в курортной зоне SEA BREEZE. Предлагает панорамный вид на море и инфраструктуру мирового уровня.',
     'Уникальный проект, предоставляющий роскошное жильё на берегу Каспийского моря. Построен с использованием современного дизайна и экологичных материалов.',
     'Эксклюзивная прибрежная резиденция, сочетающая комфорт и элегантность. Прямой выход к пляжу и курортные услуги.',
-    'Современный многофункциональный комплекс в центре SeaBreeze. Объединяет жилой комфорт с коммерческими возможностями.',
+    'Современный многофункциональный комплекс в центре SEA BREEZE. Объединяет жилой комфорт с коммерческими возможностями.',
     'Архитектурный шедевр на Абшеронском полуострове. Панорамные окна от пола до потолка открывают захватывающий вид на Каспий.',
   ],
   en: [
-    'Premium residential complex in the SeaBreeze resort zone. Features panoramic sea views and world-class infrastructure.',
+    'Premium residential complex in the SEA BREEZE resort zone. Features panoramic sea views and world-class infrastructure.',
     'A unique project offering luxury living on the Caspian coast. Built with modern design and eco-friendly materials.',
     'Exclusive beachfront residence combining comfort and elegance. Direct beach access and resort-style services available.',
-    'A modern mixed-use complex in the heart of SeaBreeze. Blends residential comfort with commercial opportunities.',
+    'A modern mixed-use complex in the heart of SEA BREEZE. Blends residential comfort with commercial opportunities.',
     'Architectural masterpiece on the Absheron Peninsula. Floor-to-ceiling windows reveal breathtaking views of the Caspian Sea.',
   ],
 };

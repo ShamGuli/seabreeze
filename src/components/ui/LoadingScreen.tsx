@@ -44,7 +44,7 @@ export default function LoadingScreen() {
           textTransform: 'uppercase',
         }}
       >
-        Sea Breeze
+        SEA BREEZE
       </h1>
       <p
         style={{

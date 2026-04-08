@@ -184,9 +184,9 @@ function InfoRow({ label, value }: { label: string; value: string | number }) {
 
 // ─── Address by language ───
 function getAddress(blockNum: number, lang: Lang): string {
-  if (lang === 'ru') return `Бульвар SeaBreeze, Блок ${blockNum}, Баку, Азербайджан`;
-  if (lang === 'en') return `SeaBreeze Boulevard, Block ${blockNum}, Baku, Azerbaijan`;
-  return `SeaBreeze Bulvarı, Blok ${blockNum}, Bakı, Azərbaycan`;
+  if (lang === 'ru') return `Бульвар SEA BREEZE, Блок ${blockNum}, Баку, Азербайджан`;
+  if (lang === 'en') return `SEA BREEZE Boulevard, Block ${blockNum}, Baku, Azerbaijan`;
+  return `SEA BREEZE Bulvarı, Blok ${blockNum}, Bakı, Azərbaycan`;
 }
 
 function getDistrict(lang: Lang): string {

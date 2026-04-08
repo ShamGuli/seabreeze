@@ -20,6 +20,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher';
 import NavigationControls from '../ui/NavigationControls';
 import ImageryOverlay from './ImageryOverlay';
 import CommunicationOverlay from './CommunicationOverlay';
+import AiChat from '../ui/AiChat';
 import { useMapStore } from '@/store/mapStore';
 
 export default function CesiumMap() {
@@ -139,6 +140,7 @@ export default function CesiumMap() {
       <NavigationControls viewer={viewer} />
       <ImageryOverlay viewer={viewer} />
       <CommunicationOverlay viewer={viewer} />
+      <AiChat />
       <Sidebar />
     </div>
   );
