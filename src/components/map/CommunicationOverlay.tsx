@@ -77,6 +77,24 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
   const showCommWells = useMapStore((s) => s.showCommWells);
   const showCommLines = useMapStore((s) => s.showCommLines);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+
+  // ── Cleanup when map changes ──
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return;
+    if (dataSourceRef.current) {
+      viewer.dataSources.remove(dataSourceRef.current, true);
+      dataSourceRef.current = null;
+    }
+    if (orthoLayerRef.current) {
+      viewer.imageryLayers.remove(orthoLayerRef.current, true);
+      orthoLayerRef.current = null;
+    }
+    entityGroupMap.current.clear();
+    pointEntityIds.current.clear();
+    lineEntityIds.current.clear();
+    viewer.scene.requestRender();
+  }, [viewer, activeMapId]);
 
   // ── Load / Unload KML ──
   useEffect(() => {

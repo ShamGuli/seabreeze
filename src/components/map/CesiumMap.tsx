@@ -180,7 +180,7 @@ export default function CesiumMap() {
       <LanguageSwitcher />
       <NavigationControls viewer={viewer} />
       <ImageryOverlay viewer={viewer} />
-      {activeConfig.features.communication && <CommunicationOverlay viewer={viewer} />}
+      <CommunicationOverlay viewer={viewer} />
       <AiChat />
       <Sidebar />
     </div>

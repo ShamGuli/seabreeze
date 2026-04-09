@@ -126,7 +126,7 @@ export default function SunSlider({ viewer }: SunSliderProps) {
           }
         }}
         style={{
-          position: 'absolute', bottom: '30px', right: '16px',
+          position: 'absolute', bottom: '24px', right: '80px',
           width: '40px', height: '40px', borderRadius: '50%',
           background: isSliderVisible ? 'rgba(255,165,0,0.6)' : 'rgba(0,0,0,0.7)',
           backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
@@ -140,7 +140,7 @@ export default function SunSlider({ viewer }: SunSliderProps) {
 
       {isSliderVisible && (
         <div style={{
-          position: 'absolute', bottom: '80px', right: '16px', width: '280px',
+          position: 'absolute', bottom: '80px', right: '24px', width: '280px',
           background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)',
           borderRadius: '12px', padding: '16px', zIndex: 1000,
           border: '1px solid rgba(255,255,255,0.1)',

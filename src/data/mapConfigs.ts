@@ -12,11 +12,11 @@ export interface MapConfig {
   };
   // Ion tokens and assets
   tilesetTokenKeys: string[];
-  basePlanTokenEnv: string;
+  basePlanToken: string;
   basePlanAssetIds: number[];
-  commTokenEnv?: string;
+  commToken?: string;
   commKmlAssetId?: number;
-  orthoTokenEnv?: string;
+  orthoToken?: string;
   orthoAssetId?: number;
 }
 
@@ -34,11 +34,11 @@ export const MAP_CONFIGS: MapConfig[] = [
       models3D: true,
     },
     tilesetTokenKeys: ['TOKEN_3', 'TOKEN_4'],
-    basePlanTokenEnv: 'NEXT_PUBLIC_CESIUM_BASEPLAN_TOKEN',
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_BASEPLAN_TOKEN || '',
     basePlanAssetIds: [4594912, 4595054, 4595004, 4594980, 4599368],
-    commTokenEnv: 'NEXT_PUBLIC_CESIUM_COMM_TOKEN',
+    commToken: process.env.NEXT_PUBLIC_CESIUM_COMM_TOKEN || '',
     commKmlAssetId: 4599391,
-    orthoTokenEnv: 'NEXT_PUBLIC_CESIUM_ORTHO_TOKEN',
+    orthoToken: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '',
     orthoAssetId: 4250769,
   },
   {
@@ -54,7 +54,7 @@ export const MAP_CONFIGS: MapConfig[] = [
       models3D: true,
     },
     tilesetTokenKeys: [],  // token-lər sonra əlavə olunacaq
-    basePlanTokenEnv: 'NEXT_PUBLIC_CESIUM_CHARVAK_BASEPLAN_TOKEN',
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_BASEPLAN_TOKEN || '',
     basePlanAssetIds: [],   // asset ID-lər sonra əlavə olunacaq
   },
 ];

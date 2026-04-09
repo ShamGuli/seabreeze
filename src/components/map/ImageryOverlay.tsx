@@ -35,17 +35,16 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
     if (!viewer || viewer.isDestroyed()) return;
 
     const config = getMapConfig(activeMapId);
-    const token = process.env[config.basePlanTokenEnv] || '';
 
     if (showBasePlan && layersRef.current.length === 0) {
-      if (!token || config.basePlanAssetIds.length === 0) return;
+      if (!config.basePlanToken || config.basePlanAssetIds.length === 0) return;
 
       loadedForMapRef.current = activeMapId;
 
       config.basePlanAssetIds.forEach(async (assetId) => {
         try {
           const provider = await Cesium.IonImageryProvider.fromAssetId(assetId, {
-            accessToken: token,
+            accessToken: config.basePlanToken,
           });
           if (viewer.isDestroyed()) return;
           const layer = viewer.imageryLayers.addImageryProvider(provider);
