@@ -11,6 +11,7 @@ export default function MapTabs() {
   const setActiveMap = useMapStore((s) => s.setActiveMap);
   const isMapTransitioning = useMapStore((s) => s.isMapTransitioning);
   const showCommunication = useMapStore((s) => s.showCommunication);
+  const selectedBuilding = useMapStore((s) => s.selectedBuilding);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -27,7 +28,7 @@ export default function MapTabs() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  if (MAP_CONFIGS.length <= 1) return null;
+  if (MAP_CONFIGS.length <= 1 || selectedBuilding) return null;
 
   return (
     <div ref={ref} style={{ position: 'absolute', top: 16, left: showCommunication ? 16 : 68, zIndex: 30, transition: 'left 0.3s' }}>
