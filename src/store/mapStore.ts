@@ -7,6 +7,9 @@ export type CommFilterKey = 'elektrik' | 'drenaj' | 'kanalizasiya' | 'qaz' | 'su
 const ALL_COMM: CommFilterKey[] = ['elektrik', 'drenaj', 'kanalizasiya', 'qaz', 'su_icmeli', 'su_texniki'];
 
 interface MapState {
+  activeMapId: string;
+  isMapTransitioning: boolean;
+  mapBuildings: Building[];
   selectedBuilding: Building | null;
   activeCategory: BuildingCategory | null;
   searchQuery: string;
@@ -20,6 +23,9 @@ interface MapState {
   showCommWells: boolean;
   showCommLines: boolean;
   showCategoryBar: boolean;
+  setActiveMap: (mapId: string) => void;
+  setIsMapTransitioning: (val: boolean) => void;
+  setMapBuildings: (buildings: Building[]) => void;
   toggleCommWells: () => void;
   toggleCommLines: () => void;
   toggleCategoryBar: () => void;
@@ -37,6 +43,9 @@ interface MapState {
 }
 
 export const useMapStore = create<MapState>((set) => ({
+  activeMapId: 'nardaran',
+  isMapTransitioning: false,
+  mapBuildings: [],
   selectedBuilding: null,
   activeCategory: null,
   searchQuery: '',
@@ -50,6 +59,23 @@ export const useMapStore = create<MapState>((set) => ({
   showCommWells: true,
   showCommLines: true,
   showCategoryBar: false,
+  setActiveMap: (mapId) => set({
+    activeMapId: mapId,
+    isMapTransitioning: true,
+    selectedBuilding: null,
+    is3D: false,
+    is3DLoading: false,
+    showBasePlan: false,
+    showCommunication: false,
+    activeCategory: null,
+    showCategoryBar: false,
+    markersHidden: false,
+    activeCommFilters: [...ALL_COMM],
+    showCommWells: true,
+    showCommLines: true,
+  }),
+  setIsMapTransitioning: (val) => set({ isMapTransitioning: val }),
+  setMapBuildings: (buildings) => set({ mapBuildings: buildings }),
   toggleCommWells: () => set((s) => ({ showCommWells: !s.showCommWells })),
   toggleCommLines: () => set((s) => ({ showCommLines: !s.showCommLines })),
   toggleCategoryBar: () => set((s) => ({ showCategoryBar: !s.showCategoryBar })),

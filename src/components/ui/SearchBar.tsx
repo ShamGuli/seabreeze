@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { buildings, type Building } from '@/data/buildings';
+import type { Building } from '@/data/buildings';
 import { CATEGORY_COLORS } from '@/data/categories';
 import { useMapStore } from '@/store/mapStore';
 import { useLang } from '@/context/LanguageContext';
@@ -15,12 +15,13 @@ export default function SearchBar({ onFlyTo }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
+  const mapBuildings = useMapStore((s) => s.mapBuildings);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const results =
     query.length >= 2
-      ? buildings.filter((b) =>
+      ? mapBuildings.filter((b) =>
           b.name.toLowerCase().includes(query.toLowerCase())
         ).slice(0, 8)
       : [];

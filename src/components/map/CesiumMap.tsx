@@ -14,6 +14,7 @@ import BuildingMarkers, { flyToBuilding } from './BuildingMarkers';
 import Sidebar from '../ui/Sidebar';
 import SearchBar from '../ui/SearchBar';
 import CategoryFilter from '../ui/CategoryFilter';
+import MapTabs from '../ui/MapTabs';
 import MyLocationButton from '../ui/MyLocationButton';
 import SunSlider from '../ui/SunSlider';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
@@ -22,18 +23,26 @@ import ImageryOverlay from './ImageryOverlay';
 import CommunicationOverlay from './CommunicationOverlay';
 import AiChat from '../ui/AiChat';
 import { useMapStore } from '@/store/mapStore';
+import { getMapConfig } from '@/data/mapConfigs';
+import { fetchBuildingsForMap } from '@/data/buildings';
 
 export default function CesiumMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
   const setFlyToOverview = useMapStore((s) => s.setFlyToOverview);
+  const setMapBuildings = useMapStore((s) => s.setMapBuildings);
+  const setIsMapTransitioning = useMapStore((s) => s.setIsMapTransitioning);
   const is3D = useMapStore((s) => s.is3D);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+  const activeConfig = getMapConfig(activeMapId);
 
+  // ── Initialize viewer ──
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) return;
 
-    // Set default Ion token (terrain + imagery)
+    const initialConfig = getMapConfig('nardaran');
+
     Cesium.Ion.defaultAccessToken =
       process.env.NEXT_PUBLIC_CESIUM_ION_TOKEN || '';
 
@@ -55,10 +64,8 @@ export default function CesiumMap() {
       maximumRenderTimeChange: Infinity,
     });
 
-    // Flat terrain — düz yer səthi
     v.terrainProvider = new Cesium.EllipsoidTerrainProvider();
 
-    // Google Maps 2D Satellite imagery
     (async () => {
       const provider = await Cesium.IonImageryProvider.fromAssetId(3830182);
       if (!v.isDestroyed()) {
@@ -66,19 +73,15 @@ export default function CesiumMap() {
       }
     })();
 
-    // Globe settings
     v.scene.globe.depthTestAgainstTerrain = true;
     v.scene.globe.show = true;
     v.scene.fog.enabled = true;
     v.scene.globe.tileCacheSize = 100;
-
-    // Default günəş işığı — binalar işıqlı görünsün (kölgə deaktiv)
     v.scene.globe.enableLighting = true;
     v.scene.light = new Cesium.SunLight({ intensity: 2.0 });
     v.clock.currentTime = Cesium.JulianDate.fromIso8601('2025-07-15T12:00:00Z');
     v.clock.shouldAnimate = false;
 
-    // Camera controller — full 3D orbit
     const ctrl = v.scene.screenSpaceCameraController;
     ctrl.minimumZoomDistance = 10;
     ctrl.maximumZoomDistance = 12000;
@@ -90,12 +93,15 @@ export default function CesiumMap() {
       { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL },
     ];
 
-    // Initial camera: top-down view centered on resort
     v.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(49.940, 40.582, 5000),
+      destination: Cesium.Cartesian3.fromDegrees(
+        initialConfig.center.longitude,
+        initialConfig.center.latitude,
+        initialConfig.initialHeight
+      ),
       orientation: {
         heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-90),
+        pitch: Cesium.Math.toRadians(initialConfig.initialPitch),
         roll: 0,
       },
     });
@@ -103,14 +109,20 @@ export default function CesiumMap() {
     viewerRef.current = v;
     setViewer(v);
 
-    // Register flyToOverview in store
+    // Load initial buildings
+    fetchBuildingsForMap(initialConfig.buildingsJsonPath).then(setMapBuildings);
+
+    // Register flyToOverview
     setFlyToOverview(() => {
       if (v && !v.isDestroyed()) {
+        const cfg = getMapConfig(useMapStore.getState().activeMapId);
         v.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(49.940, 40.582, 5000),
+          destination: Cesium.Cartesian3.fromDegrees(
+            cfg.center.longitude, cfg.center.latitude, cfg.initialHeight
+          ),
           orientation: {
             heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-90),
+            pitch: Cesium.Math.toRadians(cfg.initialPitch),
             roll: 0,
           },
           duration: 1.5,
@@ -127,11 +139,40 @@ export default function CesiumMap() {
     };
   }, []);
 
+  // ── Handle map switch ──
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return;
+
+    const config = getMapConfig(activeMapId);
+
+    // Load buildings for new map
+    fetchBuildingsForMap(config.buildingsJsonPath).then(setMapBuildings);
+
+    // Fly camera to new location
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        config.center.longitude,
+        config.center.latitude,
+        config.initialHeight
+      ),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(config.initialPitch),
+        roll: 0,
+      },
+      duration: 2.0,
+      complete: () => {
+        setIsMapTransitioning(false);
+      },
+    });
+  }, [viewer, activeMapId]);
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
       <BuildingLoader viewer={viewer} />
       <BuildingMarkers viewer={viewer} />
+      <MapTabs />
       <SearchBar onFlyTo={(b) => viewer && flyToBuilding(viewer, b)} />
       <CategoryFilter />
       <MyLocationButton viewer={viewer} />
@@ -139,7 +180,7 @@ export default function CesiumMap() {
       <LanguageSwitcher />
       <NavigationControls viewer={viewer} />
       <ImageryOverlay viewer={viewer} />
-      <CommunicationOverlay viewer={viewer} />
+      {activeConfig.features.communication && <CommunicationOverlay viewer={viewer} />}
       <AiChat />
       <Sidebar />
     </div>

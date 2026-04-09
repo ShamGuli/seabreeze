@@ -202,19 +202,27 @@ export default function CategoryFilter() {
           backdropFilter: 'blur(12px)',
         }}>
           <button
-            onClick={() => { setActiveCategory(null); if (markersHidden) toggleMarkersHidden(); }}
+            onClick={() => {
+              if (!markersHidden && !activeCategory) {
+                // All ON → turn OFF
+                toggleMarkersHidden();
+              } else {
+                // OFF or filtered → turn all ON
+                if (markersHidden) toggleMarkersHidden();
+                setActiveCategory(null);
+              }
+            }}
             className="glow-btn"
             style={{
               padding: '6px 14px', borderRadius: 16,
-              border: '1.5px solid #4FD1C5',
-              background: !activeCategory && !markersHidden
-                ? 'rgba(79, 209, 197, 0.45)' : 'rgba(25,25,30,0.9)',
+              border: `1.5px solid ${!markersHidden ? '#4FD1C5' : '#EF4444'}`,
+              background: !markersHidden ? 'rgba(79, 209, 197, 0.45)' : 'rgba(239, 68, 68, 0.35)',
               color: '#fff',
               fontSize: 13, fontWeight: 600, cursor: 'pointer',
               whiteSpace: 'nowrap' as const,
             }}
           >
-            {t('showAll') || 'All'}
+            {!markersHidden ? 'ON' : 'OFF'}
           </button>
 
           {CATEGORIES.map((cat) => {

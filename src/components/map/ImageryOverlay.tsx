@@ -3,34 +3,49 @@
 import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { useMapStore } from '@/store/mapStore';
+import { getMapConfig } from '@/data/mapConfigs';
 
 interface ImageryOverlayProps {
   viewer: Cesium.Viewer | null;
 }
 
-const BASEPLAN_TOKEN = process.env.NEXT_PUBLIC_CESIUM_BASEPLAN_TOKEN || '';
-
-// Cesium Ion imagery asset IDs for the base plan layers
-const BASEPLAN_ASSET_IDS = [4594912, 4595054, 4595004, 4594980, 4599368];
-
 export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   const layersRef = useRef<Cesium.ImageryLayer[]>([]);
+  const loadedForMapRef = useRef<string | null>(null);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+
+  // Cleanup layers when map changes
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return;
+
+    if (loadedForMapRef.current && loadedForMapRef.current !== activeMapId) {
+      layersRef.current.forEach((layer) => {
+        if (!viewer.isDestroyed()) {
+          viewer.imageryLayers.remove(layer, true);
+        }
+      });
+      layersRef.current = [];
+      loadedForMapRef.current = null;
+      viewer.scene.requestRender();
+    }
+  }, [viewer, activeMapId]);
 
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return;
 
-    if (showBasePlan && layersRef.current.length === 0) {
-      // Load all base plan imagery layers
-      const resource = new Cesium.Resource({
-        url: 'https://api.cesium.com/',
-        headers: { Authorization: `Bearer ${BASEPLAN_TOKEN}` },
-      });
+    const config = getMapConfig(activeMapId);
+    const token = process.env[config.basePlanTokenEnv] || '';
 
-      BASEPLAN_ASSET_IDS.forEach(async (assetId) => {
+    if (showBasePlan && layersRef.current.length === 0) {
+      if (!token || config.basePlanAssetIds.length === 0) return;
+
+      loadedForMapRef.current = activeMapId;
+
+      config.basePlanAssetIds.forEach(async (assetId) => {
         try {
           const provider = await Cesium.IonImageryProvider.fromAssetId(assetId, {
-            accessToken: BASEPLAN_TOKEN,
+            accessToken: token,
           });
           if (viewer.isDestroyed()) return;
           const layer = viewer.imageryLayers.addImageryProvider(provider);
@@ -42,18 +57,17 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
         }
       });
     } else if (!showBasePlan && layersRef.current.length > 0) {
-      // Remove all base plan layers
       layersRef.current.forEach((layer) => {
         if (!viewer.isDestroyed()) {
           viewer.imageryLayers.remove(layer, true);
         }
       });
       layersRef.current = [];
+      loadedForMapRef.current = null;
       if (!viewer.isDestroyed()) viewer.scene.requestRender();
     }
-  }, [viewer, showBasePlan]);
+  }, [viewer, showBasePlan, activeMapId]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (viewer && !viewer.isDestroyed()) {

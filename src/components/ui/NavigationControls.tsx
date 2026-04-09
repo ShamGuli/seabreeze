@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import * as Cesium from 'cesium';
 import { useMapStore } from '@/store/mapStore';
+import { getMapConfig } from '@/data/mapConfigs';
 
 interface NavigationControlsProps {
   viewer: Cesium.Viewer | null;
@@ -18,6 +19,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
   const setShowBasePlan = useMapStore((s) => s.setShowBasePlan);
   const showCommunication = useMapStore((s) => s.showCommunication);
   const setShowCommunication = useMapStore((s) => s.setShowCommunication);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+  const activeConfig = getMapConfig(activeMapId);
 
   // ── Zoom ──
   const zoom = useCallback((inOut: 'in' | 'out') => {
@@ -263,8 +266,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
         </svg>
       </button>
 
-      {/* Communication Toggle */}
-      <button
+      {/* Communication Toggle — only for maps with communication */}
+      {activeConfig.features.communication && <button
         onClick={() => setShowCommunication(!showCommunication)}
         style={{
           ...btnStyle,
@@ -286,7 +289,7 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
           <line x1="19" y1="7" x2="19" y2="17" />
           <line x1="7" y1="19" x2="17" y2="19" />
         </svg>
-      </button>
+      </button>}
     </div>
   );
 }

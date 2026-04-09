@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { getToken } from '@/utils/cesiumConfig';
 import { useMapStore } from '@/store/mapStore';
+import { getMapConfig } from '@/data/mapConfigs';
 
 interface BuildingLoaderProps {
   viewer: Cesium.Viewer | null;
@@ -40,26 +41,48 @@ const HEIGHT_OFFSET = 0;
 
 export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
   const tilesetsRef = useRef<Cesium.Cesium3DTileset[]>([]);
-  const loadedRef = useRef(false);
+  const loadedForMapRef = useRef<string | null>(null);
   const is3D = useMapStore((s) => s.is3D);
   const setIs3DLoading = useMapStore((s) => s.setIs3DLoading);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+
+  // Cleanup tilesets when map changes
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return;
+
+    // If map changed, remove old tilesets
+    if (loadedForMapRef.current && loadedForMapRef.current !== activeMapId) {
+      tilesetsRef.current.forEach((t) => {
+        viewer.scene.primitives.remove(t);
+        if (!t.isDestroyed()) t.destroy();
+      });
+      tilesetsRef.current = [];
+      loadedForMapRef.current = null;
+      viewer.scene.requestRender();
+    }
+  }, [viewer, activeMapId]);
 
   useEffect(() => {
     if (!viewer) return;
 
+    const config = getMapConfig(activeMapId);
+
     if (is3D) {
-      if (!loadedRef.current) {
-        // İlk dəfə: tileset-ləri yüklə
-        loadedRef.current = true;
+      if (loadedForMapRef.current !== activeMapId) {
+        // Load tilesets for current map
+        loadedForMapRef.current = activeMapId;
         setIs3DLoading(true);
 
+        if (config.tilesetTokenKeys.length === 0) {
+          setIs3DLoading(false);
+          return;
+        }
+
         (async () => {
-          // Hər iki token-dən asset-ləri paralel yüklə
-          const tokenKeys = ['TOKEN_3', 'TOKEN_4'];
           const allAssets: { assetId: number; token: string }[] = [];
 
           await Promise.all(
-            tokenKeys.map(async (key) => {
+            config.tilesetTokenKeys.map(async (key) => {
               const token = getToken(key);
               if (!token) return;
               const ids = await fetchIonAssetIds(token);
@@ -107,16 +130,16 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
           viewer.scene.requestRender();
         })();
       } else {
-        // Sonrakı: show = true
+        // Show existing tilesets
         tilesetsRef.current.forEach((t) => { t.show = true; });
         viewer.scene.requestRender();
       }
     } else {
-      // 2D: tileset-ləri gizlət
+      // 2D: hide tilesets
       tilesetsRef.current.forEach((t) => { t.show = false; });
       if (viewer.scene) viewer.scene.requestRender();
     }
-  }, [viewer, is3D]);
+  }, [viewer, is3D, activeMapId]);
 
   return null;
 }

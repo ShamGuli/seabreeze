@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
-import { buildings, type Building } from '@/data/buildings';
+import type { Building } from '@/data/buildings';
 import { CATEGORY_COLORS } from '@/data/categories';
 import { useMapStore } from '@/store/mapStore';
 
@@ -11,20 +11,34 @@ interface BuildingMarkersProps {
 }
 
 export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
-  const loadedRef = useRef(false);
   const entityMapRef = useRef<Map<string, Cesium.Entity>>(new Map());
+  const loadedForMapRef = useRef<string | null>(null);
+  const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const setSelectedBuilding = useMapStore((s) => s.setSelectedBuilding);
   const activeCategory = useMapStore((s) => s.activeCategory);
   const markersHidden = useMapStore((s) => s.markersHidden);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+  const mapBuildings = useMapStore((s) => s.mapBuildings);
 
-  // Create entities once
+  // Create/recreate entities when buildings or map changes
   useEffect(() => {
-    if (!viewer || loadedRef.current) return;
-    loadedRef.current = true;
+    if (!viewer || viewer.isDestroyed()) return;
+
+    // Cleanup old entities
+    entityMapRef.current.forEach((entity) => {
+      viewer.entities.remove(entity);
+    });
+    entityMapRef.current.clear();
+
+    if (mapBuildings.length === 0) {
+      loadedForMapRef.current = activeMapId;
+      viewer.scene.requestRender();
+      return;
+    }
 
     const map = new Map<string, Cesium.Entity>();
 
-    for (const building of buildings) {
+    for (const building of mapBuildings) {
       const color = Cesium.Color.fromCssColorString(
         CATEGORY_COLORS[building.category]
       );
@@ -62,27 +76,29 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     }
 
     entityMapRef.current = map;
+    loadedForMapRef.current = activeMapId;
 
-    // Click handler
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
-      const state = useMapStore.getState();
-      if (state.showBasePlan || state.showCommunication) return;
-      const picked = viewer.scene.pick(click.position);
-      if (Cesium.defined(picked) && picked.id instanceof Cesium.Entity) {
-        const entity = picked.id as Cesium.Entity;
-        const building = buildings.find((b) => b.id === entity.name);
-        if (building) {
-          setSelectedBuilding(building);
-          flyToBuilding(viewer, building);
+    // Setup click handler (once)
+    if (!handlerRef.current) {
+      const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+      handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+        const state = useMapStore.getState();
+        if (state.showBasePlan || state.showCommunication) return;
+        const picked = viewer.scene.pick(click.position);
+        if (Cesium.defined(picked) && picked.id instanceof Cesium.Entity) {
+          const entity = picked.id as Cesium.Entity;
+          const building = state.mapBuildings.find((b) => b.id === entity.name);
+          if (building) {
+            state.setSelectedBuilding(building);
+            flyToBuilding(viewer, building);
+          }
         }
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      handlerRef.current = handler;
+    }
 
-    return () => {
-      handler.destroy();
-    };
-  }, [viewer, setSelectedBuilding]);
+    viewer.scene.requestRender();
+  }, [viewer, mapBuildings, activeMapId]);
 
   const showCommunication = useMapStore((s) => s.showCommunication);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
@@ -92,7 +108,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     const map = entityMapRef.current;
     if (map.size === 0) return;
 
-    for (const building of buildings) {
+    for (const building of mapBuildings) {
       const entity = map.get(building.id);
       if (!entity) continue;
       if (markersHidden || showCommunication || showBasePlan) {
@@ -104,13 +120,20 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     if (viewer && !viewer.isDestroyed()) {
       viewer.scene.requestRender();
     }
-  }, [viewer, activeCategory, markersHidden, showCommunication, showBasePlan]);
+  }, [viewer, activeCategory, markersHidden, showCommunication, showBasePlan, mapBuildings]);
+
+  // Cleanup handler on unmount
+  useEffect(() => {
+    return () => {
+      handlerRef.current?.destroy();
+      handlerRef.current = null;
+    };
+  }, []);
 
   return null;
 }
 
 export function flyToBuilding(viewer: Cesium.Viewer, building: Building) {
-  // Fly to an orbit point ~300m from building at an angle
   const target = Cesium.Cartesian3.fromDegrees(
     building.longitude,
     building.latitude,
