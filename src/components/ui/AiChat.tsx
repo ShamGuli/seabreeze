@@ -38,12 +38,18 @@ export default function AiChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Focus input when panel opens
+  // Focus input when panel opens or AI finishes responding
   useEffect(() => {
     if (isChatOpen) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isChatOpen]);
+
+  useEffect(() => {
+    if (isChatOpen && !isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading, isChatOpen]);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -51,6 +57,7 @@ export default function AiChat() {
     if (!text || isLoading) return;
     sendMessage({ text });
     setInputValue('');
+    setTimeout(() => inputRef.current?.focus(), 50);
   };
 
   // Extract text from message parts
@@ -131,6 +138,7 @@ export default function AiChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+            onClick={() => inputRef.current?.focus()}
             style={{
               ...panelStyle,
               zIndex: 150,
