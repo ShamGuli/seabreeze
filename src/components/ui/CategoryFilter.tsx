@@ -235,9 +235,9 @@ export default function CategoryFilter() {
                 onClick={() => { if (markersHidden) toggleMarkersHidden(); setActiveCategory(active ? null : cat); }}
                 style={{
                   padding: '6px 12px', borderRadius: 16,
-                  border: `1.5px solid ${color}`,
-                  background: active ? color : 'rgba(25,25,30,0.9)',
-                  color: '#fff',
+                  border: `1.5px solid ${markersHidden ? color + '40' : color}`,
+                  background: active && !markersHidden ? color : 'rgba(25,25,30,0.9)',
+                  color: markersHidden ? '#aaa' : '#fff',
                   fontSize: 13, fontWeight: 500, cursor: 'pointer',
                   whiteSpace: 'nowrap' as const,
                 }}

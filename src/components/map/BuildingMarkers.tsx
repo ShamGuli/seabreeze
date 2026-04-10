@@ -102,6 +102,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
 
   const showCommunication = useMapStore((s) => s.showCommunication);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
+  const showCategoryBar = useMapStore((s) => s.showCategoryBar);
 
   // Filter entities by active category or hide all
   useEffect(() => {
@@ -111,7 +112,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     for (const building of mapBuildings) {
       const entity = map.get(building.id);
       if (!entity) continue;
-      if (markersHidden || showCommunication || showBasePlan) {
+      if (!showCategoryBar || markersHidden || showCommunication || showBasePlan) {
         entity.show = false;
       } else {
         entity.show = activeCategory === null || building.category === activeCategory;
@@ -120,7 +121,7 @@ export default function BuildingMarkers({ viewer }: BuildingMarkersProps) {
     if (viewer && !viewer.isDestroyed()) {
       viewer.scene.requestRender();
     }
-  }, [viewer, activeCategory, markersHidden, showCommunication, showBasePlan, mapBuildings]);
+  }, [viewer, activeCategory, markersHidden, showCommunication, showBasePlan, showCategoryBar, mapBuildings]);
 
   // Cleanup handler on unmount
   useEffect(() => {
