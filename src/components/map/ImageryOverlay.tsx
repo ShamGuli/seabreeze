@@ -184,10 +184,16 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           if (viewer.isDestroyed()) return;
           viewer.scene.globe.depthTestAgainstTerrain = false;
           if (activeMapId === 'charvak') {
-            // Charvak: show labels on top, hide billboards (pin icons)
+            // Charvak: show labels anchored to object, scale with distance
             ds.entities.values.forEach((entity) => {
               if (entity.label) {
                 entity.label.disableDepthTestDistance = new Cesium.ConstantProperty(Number.POSITIVE_INFINITY);
+                entity.label.scaleByDistance = new Cesium.ConstantProperty(
+                  new Cesium.NearFarScalar(500, 1.0, 8000, 0.4)
+                );
+                entity.label.pixelOffset = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, 0));
+                entity.label.horizontalOrigin = new Cesium.ConstantProperty(Cesium.HorizontalOrigin.CENTER);
+                entity.label.verticalOrigin = new Cesium.ConstantProperty(Cesium.VerticalOrigin.CENTER);
               }
               if (entity.billboard) {
                 entity.billboard.show = new Cesium.ConstantProperty(false);
