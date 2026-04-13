@@ -13,11 +13,14 @@ export interface MapConfig {
   // Ion tokens and assets
   tilesetTokenKeys: string[];
   basePlanToken: string;
-  basePlanAssetIds: number[];
+  basePlanAssetIds: number[];       // IMAGERY assets
+  basePlanKmlIds: number[];         // KML assets (polygons, lines)
   commToken?: string;
   commKmlAssetId?: number;
   orthoToken?: string;
   orthoAssetId?: number;
+  namesToken?: string;
+  namesAssetId?: number;
 }
 
 export const MAP_CONFIGS: MapConfig[] = [
@@ -33,10 +36,13 @@ export const MAP_CONFIGS: MapConfig[] = [
       basePlan: true,
       models3D: true,
     },
-    tilesetTokenKeys: ['TOKEN_3', 'TOKEN_4'],
-    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_BASEPLAN_TOKEN || '',
-    basePlanAssetIds: [4594912, 4595054, 4595004, 4594980, 4599368],
-    commToken: process.env.NEXT_PUBLIC_CESIUM_COMM_TOKEN || '',
+    tilesetTokenKeys: ['TOKEN_3'],
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
+    basePlanAssetIds: [4614421, 4614438],
+    namesToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
+    namesAssetId: 4611468,
+    basePlanKmlIds: [],
+    commToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     commKmlAssetId: 4599391,
     orthoToken: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '',
     orthoAssetId: 4250769,
@@ -44,7 +50,7 @@ export const MAP_CONFIGS: MapConfig[] = [
   {
     id: 'charvak',
     nameI18n: { az: 'Çarvak', ru: 'Чарвак', en: 'Charvak' },
-    center: { longitude: 69.98, latitude: 41.62 },
+    center: { longitude: 70.060, latitude: 41.655 },
     initialHeight: 5000,
     initialPitch: -90,
     buildingsJsonPath: '/data/buildings-charvak.json',
@@ -53,9 +59,10 @@ export const MAP_CONFIGS: MapConfig[] = [
       basePlan: true,
       models3D: true,
     },
-    tilesetTokenKeys: [],  // token-lər sonra əlavə olunacaq
-    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_BASEPLAN_TOKEN || '',
-    basePlanAssetIds: [],   // asset ID-lər sonra əlavə olunacaq
+    tilesetTokenKeys: [],
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
+    basePlanAssetIds: [],
+    basePlanKmlIds: [4614767],
   },
 ];
 

@@ -19,6 +19,8 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
   const setShowBasePlan = useMapStore((s) => s.setShowBasePlan);
   const showCommunication = useMapStore((s) => s.showCommunication);
   const setShowCommunication = useMapStore((s) => s.setShowCommunication);
+  const showNames = useMapStore((s) => s.showNames);
+  const setShowNames = useMapStore((s) => s.setShowNames);
   const activeMapId = useMapStore((s) => s.activeMapId);
   const activeConfig = getMapConfig(activeMapId);
 
@@ -265,6 +267,25 @@ export default function NavigationControls({ viewer }: NavigationControlsProps) 
           <line x1="15" y1="6" x2="15" y2="21" />
         </svg>
       </button>
+
+      {/* Names Toggle — only for maps with names asset */}
+      {activeConfig.namesAssetId && <button
+        onClick={() => setShowNames(!showNames)}
+        style={{
+          ...btnStyle,
+          marginTop: 4,
+          background: showNames ? 'rgba(0,150,255,0.5)' : 'rgba(15, 15, 30, 0.85)',
+        }}
+        onMouseEnter={e => { if (!showNames) e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
+        onMouseLeave={e => { if (!showNames) e.currentTarget.style.background = 'rgba(15, 15, 30, 0.85)'; }}
+        title="Adlar"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 7V4h16v3" />
+          <path d="M9 20h6" />
+          <path d="M12 4v16" />
+        </svg>
+      </button>}
 
       {/* Communication Toggle — only for maps with communication */}
       {activeConfig.features.communication && <button

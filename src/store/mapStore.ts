@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Building } from '@/data/buildings';
 import type { BuildingCategory } from '@/data/categories';
+import { getMapConfig } from '@/data/mapConfigs';
 
 export type CommFilterKey = 'elektrik' | 'drenaj' | 'kanalizasiya' | 'qaz' | 'su_icmeli' | 'su_texniki';
 
@@ -23,6 +24,7 @@ interface MapState {
   showCommWells: boolean;
   showCommLines: boolean;
   showCategoryBar: boolean;
+  showNames: boolean;
   setActiveMap: (mapId: string) => void;
   setIsMapTransitioning: (val: boolean) => void;
   setMapBuildings: (buildings: Building[]) => void;
@@ -40,6 +42,7 @@ interface MapState {
   setShowCommunication: (val: boolean) => void;
   toggleCommFilter: (key: CommFilterKey) => void;
   setAllCommFilters: (on: boolean) => void;
+  setShowNames: (val: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -59,21 +62,27 @@ export const useMapStore = create<MapState>((set) => ({
   showCommWells: true,
   showCommLines: true,
   showCategoryBar: false,
-  setActiveMap: (mapId) => set({
-    activeMapId: mapId,
-    isMapTransitioning: true,
-    selectedBuilding: null,
-    is3D: false,
-    is3DLoading: false,
-    showBasePlan: false,
-    showCommunication: false,
-    activeCategory: null,
-    showCategoryBar: false,
-    markersHidden: false,
-    activeCommFilters: [...ALL_COMM],
-    showCommWells: true,
-    showCommLines: true,
-  }),
+  showNames: false,
+  setActiveMap: (mapId) => {
+    const config = getMapConfig(mapId);
+    set({
+      activeMapId: mapId,
+      isMapTransitioning: true,
+      selectedBuilding: null,
+      is3D: false,
+      is3DLoading: false,
+      // Auto-show base plan for maps without buildings (e.g. Charvak)
+      showBasePlan: mapId !== 'nardaran',
+      showCommunication: false,
+      activeCategory: null,
+      showCategoryBar: false,
+      markersHidden: false,
+      activeCommFilters: [...ALL_COMM],
+      showCommWells: true,
+      showCommLines: true,
+      showNames: false,
+    });
+  },
   setIsMapTransitioning: (val) => set({ isMapTransitioning: val }),
   setMapBuildings: (buildings) => set({ mapBuildings: buildings }),
   toggleCommWells: () => set((s) => ({ showCommWells: !s.showCommWells })),
@@ -96,4 +105,5 @@ export const useMapStore = create<MapState>((set) => ({
     return { activeCommFilters: has ? s.activeCommFilters.filter(k => k !== key) : [...s.activeCommFilters, key] };
   }),
   setAllCommFilters: (on) => set({ activeCommFilters: on ? [...ALL_COMM] : [] }),
+  setShowNames: (val) => set({ showNames: val }),
 }));

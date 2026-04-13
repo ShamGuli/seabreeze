@@ -1,0 +1,16 @@
+html, body, #cesiumContainer {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  touch-action: manipulation;
+}
+#cesiumContainer canvas {
+  touch-action: none;
+}
+#cesiumContainer {
+  will-change: transform;
+}
+.cesium-viewer-bottom { display: none !important; }
+.cesium-widget-credits { display: none !important; }

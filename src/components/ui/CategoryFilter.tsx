@@ -4,6 +4,7 @@ import { useMapStore, type CommFilterKey } from '@/store/mapStore';
 import { CATEGORY_COLORS, type BuildingCategory } from '@/data/categories';
 import { COMM_GROUP_COLORS } from '@/components/map/CommunicationOverlay';
 import { useLang } from '@/context/LanguageContext';
+import { getMapConfig } from '@/data/mapConfigs';
 
 const CATEGORIES = Object.keys(CATEGORY_COLORS) as BuildingCategory[];
 
@@ -69,6 +70,8 @@ export default function CategoryFilter() {
   const toggleCommLines = useMapStore((s) => s.toggleCommLines);
   const showCategoryBar = useMapStore((s) => s.showCategoryBar);
   const toggleCategoryBar = useMapStore((s) => s.toggleCategoryBar);
+  const activeMapId = useMapStore((s) => s.activeMapId);
+  const mapBuildings = useMapStore((s) => s.mapBuildings);
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
@@ -169,6 +172,9 @@ export default function CategoryFilter() {
   }
 
   // ═══ NORMAL MODE ═══
+  // Hide category UI for maps without buildings (e.g. Charvak)
+  if (activeMapId !== 'nardaran') return null;
+
   return (
     <>
       {/* Info button — sol yuxarı */}

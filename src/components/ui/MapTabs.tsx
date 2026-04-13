@@ -16,6 +16,7 @@ export default function MapTabs() {
   const ref = useRef<HTMLDivElement>(null);
 
   const activeConfig = MAP_CONFIGS.find((c) => c.id === activeMapId) ?? MAP_CONFIGS[0];
+  const hasInfoButton = activeMapId === 'nardaran';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function MapTabs() {
   if (MAP_CONFIGS.length <= 1 || selectedBuilding) return null;
 
   return (
-    <div ref={ref} style={{ position: 'absolute', top: 16, left: showCommunication ? 16 : 68, zIndex: 30, transition: 'left 0.3s' }}>
+    <div ref={ref} style={{ position: 'absolute', top: 16, left: (showCommunication || !hasInfoButton) ? 16 : 68, zIndex: 30, transition: 'left 0.3s' }}>
       {/* Active map button (dropdown trigger) */}
       <button
         onClick={() => setOpen(!open)}

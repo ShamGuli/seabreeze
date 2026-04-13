@@ -8,7 +8,7 @@ interface CommunicationOverlayProps {
   viewer: Cesium.Viewer | null;
 }
 
-const COMM_TOKEN = process.env.NEXT_PUBLIC_CESIUM_COMM_TOKEN || '';
+const COMM_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '';
 const COMM_KML_ASSET_ID = 4599391;
 
 const ORTHO_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '';
