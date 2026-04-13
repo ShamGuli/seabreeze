@@ -144,6 +144,7 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
             for (let i = idx; i > 1; i--) {
               viewer.imageryLayers.lower(layer);
             }
+            layer.show = useMapStore.getState().showOrtho;
             orthoLayerRef.current = layer;
             viewer.scene.requestRender();
           } catch (err) {

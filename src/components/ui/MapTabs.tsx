@@ -11,6 +11,7 @@ export default function MapTabs() {
   const setActiveMap = useMapStore((s) => s.setActiveMap);
   const isMapTransitioning = useMapStore((s) => s.isMapTransitioning);
   const showCommunication = useMapStore((s) => s.showCommunication);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
   const selectedBuilding = useMapStore((s) => s.selectedBuilding);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -32,7 +33,7 @@ export default function MapTabs() {
   if (MAP_CONFIGS.length <= 1 || selectedBuilding) return null;
 
   return (
-    <div ref={ref} style={{ position: 'absolute', top: 16, left: (showCommunication || !hasInfoButton) ? 16 : 68, zIndex: 30, transition: 'left 0.3s' }}>
+    <div ref={ref} style={{ position: 'absolute', top: 16, left: (showCommunication || showBasePlan || !hasInfoButton) ? 16 : 68, zIndex: 30, transition: 'left 0.3s' }}>
       {/* Active map button (dropdown trigger) */}
       <button
         onClick={() => setOpen(!open)}

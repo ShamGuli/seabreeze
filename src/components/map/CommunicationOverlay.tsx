@@ -113,6 +113,11 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           if (viewer.isDestroyed() || cancelledRef.current) return;
           const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
           layer.alpha = 1.0;
+          // Double-check: if communication was turned off while loading, remove immediately
+          if (cancelledRef.current || !useMapStore.getState().showCommunication) {
+            viewer.imageryLayers.remove(layer, true);
+            return;
+          }
           orthoLayerRef.current = layer;
           viewer.scene.requestRender();
         } catch (err) {
@@ -131,7 +136,7 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
             canvas: viewer.scene.canvas,
             clampToGround: true,
           });
-          if (viewer.isDestroyed() || cancelledRef.current) return;
+          if (viewer.isDestroyed() || cancelledRef.current || !useMapStore.getState().showCommunication) return;
           viewer.dataSources.add(ds);
           dataSourceRef.current = ds;
 
