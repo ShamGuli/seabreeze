@@ -73,16 +73,22 @@ export default function CategoryFilter() {
   const activeMapId = useMapStore((s) => s.activeMapId);
   const mapBuildings = useMapStore((s) => s.mapBuildings);
 
+  const showOrtho = useMapStore((s) => s.showOrtho);
+  const toggleOrtho = useMapStore((s) => s.toggleOrtho);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
+  const showBasePlanLayers = useMapStore((s) => s.showBasePlanLayers);
+  const toggleBasePlanLayers = useMapStore((s) => s.toggleBasePlanLayers);
+
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
     const allOn = activeCommFilters.length === COMM_GROUPS.length;
 
     return (
       <div className="animate-slide-up category-scroll" style={{
-        position: 'absolute', bottom: 24, left: 0, right: 0,
+        position: 'absolute', bottom: 20, left: 0, right: 0,
         marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
-        zIndex: 20, display: 'flex', gap: 5, alignItems: 'center',
-        padding: '6px 8px', borderRadius: 18,
+        zIndex: 20, display: 'flex', gap: 4, alignItems: 'center',
+        padding: '4px 6px', borderRadius: 16,
         maxWidth: '96vw', overflowX: 'hidden',
         background: 'rgba(15,15,20,0.85)',
         backdropFilter: 'blur(12px)',
@@ -92,11 +98,11 @@ export default function CategoryFilter() {
           onClick={() => setAllCommFilters(!allOn)}
           className="glow-btn"
           style={{
-            padding: '6px 14px', borderRadius: 16,
+            padding: '4px 10px', borderRadius: 12,
             border: `1.5px solid ${allOn ? '#4FD1C5' : '#EF4444'}`,
             background: allOn ? 'rgba(79, 209, 197, 0.45)' : 'rgba(239, 68, 68, 0.35)',
             color: '#fff',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            fontSize: 11, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
           }}
         >
@@ -112,13 +118,13 @@ export default function CategoryFilter() {
               className="glow-btn"
               onClick={() => toggleCommFilter(g.key)}
               style={{
-                padding: '6px 12px', borderRadius: 16,
+                padding: '4px 8px', borderRadius: 12,
                 border: `1.5px solid ${g.color}`,
                 background: active ? g.color : 'rgba(25,25,30,0.9)',
                 color: '#fff',
-                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                fontSize: 10, fontWeight: 600, cursor: 'pointer',
                 whiteSpace: 'nowrap' as const,
-                display: 'flex', alignItems: 'center', gap: 6,
+                display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
               <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -130,23 +136,41 @@ export default function CategoryFilter() {
         })}
 
         {/* ── Separator ── */}
-        <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+
+        {/* Ortho toggle */}
+        <button
+          onClick={toggleOrtho}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showOrtho ? '#6366F1' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 3v18" /></svg>
+          Ortho
+        </button>
 
         {/* Xəttlər toggle */}
         <button
           onClick={toggleCommLines}
           className="glow-btn"
           style={{
-            padding: '6px 14px', borderRadius: 16,
+            padding: '4px 10px', borderRadius: 12,
             border: 'none',
             background: showCommLines ? '#10B981' : '#6B7280',
             color: '#fff',
-            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
-            display: 'flex', alignItems: 'center', gap: 5,
+            display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 17l6-6 4 4 8-8" /></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 17l6-6 4 4 8-8" /></svg>
           Xəttlər
         </button>
 
@@ -155,17 +179,64 @@ export default function CategoryFilter() {
           onClick={toggleCommWells}
           className="glow-btn"
           style={{
-            padding: '6px 14px', borderRadius: 16,
+            padding: '4px 10px', borderRadius: 12,
             border: 'none',
             background: showCommWells ? '#10B981' : '#6B7280',
             color: '#fff',
-            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
             whiteSpace: 'nowrap' as const,
-            display: 'flex', alignItems: 'center', gap: 5,
+            display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill={showCommWells ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="8" /></svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill={showCommWells ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="8" /></svg>
           Quyular
+        </button>
+      </div>
+    );
+  }
+
+  // ═══ BASE PLAN MODE ═══
+  if (showBasePlan && !showCommunication) {
+    return (
+      <div className="animate-slide-up" style={{
+        position: 'absolute', bottom: 20, left: 0, right: 0,
+        marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
+        zIndex: 20, display: 'flex', gap: 4, alignItems: 'center',
+        padding: '4px 6px', borderRadius: 16,
+        background: 'rgba(15,15,20,0.85)',
+        backdropFilter: 'blur(12px)',
+      }}>
+        <button
+          onClick={toggleOrtho}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showOrtho ? '#6366F1' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 3v18" /></svg>
+          Ortho
+        </button>
+        <button
+          onClick={toggleBasePlanLayers}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showBasePlanLayers ? '#0EA5E9' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+          Plan
         </button>
       </div>
     );

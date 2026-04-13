@@ -77,6 +77,7 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
   const showCommWells = useMapStore((s) => s.showCommWells);
   const showCommLines = useMapStore((s) => s.showCommLines);
+  const showOrtho = useMapStore((s) => s.showOrtho);
   const activeMapId = useMapStore((s) => s.activeMapId);
 
   // ── Cleanup when map changes ──
@@ -97,8 +98,10 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   }, [viewer, activeMapId]);
 
   // ── Load / Unload KML ──
+  const cancelledRef = useRef(false);
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return;
+    cancelledRef.current = false;
 
     if (showCommunication && !dataSourceRef.current) {
       // Load orthophoto background
@@ -107,7 +110,7 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(ORTHO_ASSET_ID, {
             accessToken: ORTHO_TOKEN,
           });
-          if (viewer.isDestroyed()) return;
+          if (viewer.isDestroyed() || cancelledRef.current) return;
           const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
           layer.alpha = 1.0;
           orthoLayerRef.current = layer;
@@ -122,13 +125,13 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           const resource = await Cesium.IonResource.fromAssetId(COMM_KML_ASSET_ID, {
             accessToken: COMM_TOKEN,
           });
-          if (viewer.isDestroyed()) return;
+          if (viewer.isDestroyed() || cancelledRef.current) return;
           const ds = await Cesium.KmlDataSource.load(resource, {
             camera: viewer.scene.camera,
             canvas: viewer.scene.canvas,
             clampToGround: true,
           });
-          if (viewer.isDestroyed()) return;
+          if (viewer.isDestroyed() || cancelledRef.current) return;
           viewer.dataSources.add(ds);
           dataSourceRef.current = ds;
 
@@ -200,9 +203,11 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           console.warn('Failed to load Communication KML:', err);
         }
       })();
-    } else if (!showCommunication && dataSourceRef.current) {
+    } else if (!showCommunication && (dataSourceRef.current || orthoLayerRef.current)) {
       if (!viewer.isDestroyed()) {
-        viewer.dataSources.remove(dataSourceRef.current, true);
+        if (dataSourceRef.current) {
+          viewer.dataSources.remove(dataSourceRef.current, true);
+        }
         if (orthoLayerRef.current) {
           viewer.imageryLayers.remove(orthoLayerRef.current, true);
           orthoLayerRef.current = null;
@@ -214,6 +219,10 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
       pointEntityIds.current.clear();
       lineEntityIds.current.clear();
     }
+
+    return () => {
+      cancelledRef.current = true;
+    };
   }, [viewer, showCommunication]);
 
   // ── Apply filters (group + wells + lines) ──
@@ -251,6 +260,13 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
     }
     viewer.scene.requestRender();
   }, [viewer, activeCommFilters, showCommWells, showCommLines]);
+
+  // ── Toggle ortho visibility ──
+  useEffect(() => {
+    if (!orthoLayerRef.current || !viewer || viewer.isDestroyed()) return;
+    orthoLayerRef.current.show = showOrtho;
+    viewer.scene.requestRender();
+  }, [viewer, showOrtho]);
 
   // Cleanup on unmount
   useEffect(() => {
