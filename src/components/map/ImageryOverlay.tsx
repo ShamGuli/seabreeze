@@ -183,10 +183,23 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           });
           if (viewer.isDestroyed()) return;
           viewer.scene.globe.depthTestAgainstTerrain = false;
-          ds.entities.values.forEach((entity) => {
-            if (entity.label) entity.label.show = new Cesium.ConstantProperty(false);
-            if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
-          });
+          if (activeMapId === 'charvak') {
+            // Charvak: show labels on top, hide billboards (pin icons)
+            ds.entities.values.forEach((entity) => {
+              if (entity.label) {
+                entity.label.disableDepthTestDistance = new Cesium.ConstantProperty(Number.POSITIVE_INFINITY);
+              }
+              if (entity.billboard) {
+                entity.billboard.show = new Cesium.ConstantProperty(false);
+              }
+            });
+          } else {
+            // Nardaran: hide labels/billboards
+            ds.entities.values.forEach((entity) => {
+              if (entity.label) entity.label.show = new Cesium.ConstantProperty(false);
+              if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
+            });
+          }
           viewer.dataSources.add(ds);
           kmlSourcesRef.current.push(ds);
           viewer.scene.requestRender();

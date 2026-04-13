@@ -195,8 +195,8 @@ export default function CategoryFilter() {
     );
   }
 
-  // ═══ BASE PLAN MODE ═══
-  if (showBasePlan && !showCommunication) {
+  // ═══ BASE PLAN MODE (only Nardaran has ortho/plan toggles) ═══
+  if (showBasePlan && !showCommunication && activeMapId === 'nardaran') {
     return (
       <div className="animate-slide-up" style={{
         position: 'absolute', bottom: 20, left: 0, right: 0,
