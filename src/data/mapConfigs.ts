@@ -40,7 +40,7 @@ export const MAP_CONFIGS: MapConfig[] = [
     basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     basePlanAssetIds: [4614421, 4614438],
     namesToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
-    namesAssetId: 4611468,
+    namesAssetId: 4619773,
     basePlanKmlIds: [],
     commToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     commKmlAssetId: 4599391,

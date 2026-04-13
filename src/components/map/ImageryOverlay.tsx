@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Cesium from 'cesium';
 import { useMapStore } from '@/store/mapStore';
 import { getMapConfig } from '@/data/mapConfigs';
@@ -9,13 +9,60 @@ interface ImageryOverlayProps {
   viewer: Cesium.Viewer | null;
 }
 
+interface TooltipData {
+  name: string;
+  areaText: string;
+  screenX: number;
+  screenY: number;
+  worldPos: Cesium.Cartesian3;
+}
+
+/** Shoelace formula for polygon area on a sphere (approximate, good for small areas) */
+function computePolygonArea(coords: { lon: number; lat: number }[]): number {
+  const R = 6371000;
+  const n = coords.length;
+  if (n < 3) return 0;
+  let area = 0;
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    const lat1 = coords[i].lat * (Math.PI / 180);
+    const lat2 = coords[j].lat * (Math.PI / 180);
+    const dLon = (coords[j].lon - coords[i].lon) * (Math.PI / 180);
+    area += dLon * (2 + Math.sin(lat1) + Math.sin(lat2));
+  }
+  area = Math.abs((area * R * R) / 2);
+  return area;
+}
+
 export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   const layersRef = useRef<Cesium.ImageryLayer[]>([]);
   const kmlSourcesRef = useRef<Cesium.KmlDataSource[]>([]);
+  const namesSourceRef = useRef<Cesium.KmlDataSource | null>(null);
+  const clickHandlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
+  const renderListenerRef = useRef<(() => void) | null>(null);
   const loadedForMapRef = useRef<string | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
+  const tooltipWorldPosRef = useRef<Cesium.Cartesian3 | null>(null);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
-  const showNames = useMapStore((s) => s.showNames);
   const activeMapId = useMapStore((s) => s.activeMapId);
+  const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+
+  // Update tooltip screen position on camera move
+  const updateTooltipPosition = useCallback(() => {
+    if (!viewer || viewer.isDestroyed() || !tooltipWorldPosRef.current) return;
+    const screenPos = Cesium.SceneTransforms.worldToWindowCoordinates(
+      viewer.scene, tooltipWorldPosRef.current
+    );
+    if (screenPos) {
+      setTooltip(prev => prev ? { ...prev, screenX: screenPos.x, screenY: screenPos.y } : null);
+    }
+  }, [viewer]);
+
+  const hideTooltip = useCallback(() => {
+    setTooltip(null);
+    tooltipWorldPosRef.current = null;
+    selectedIdRef.current = null;
+  }, []);
 
   // Cleanup when map changes
   useEffect(() => {
@@ -28,25 +75,34 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
       kmlSourcesRef.current.forEach((ds) => {
         if (!viewer.isDestroyed()) viewer.dataSources.remove(ds, true);
       });
-      layersRef.current = [];
-      kmlSourcesRef.current = [];
-      loadedForMapRef.current = null;
       if (namesSourceRef.current) {
         viewer.dataSources.remove(namesSourceRef.current, true);
         namesSourceRef.current = null;
       }
+      if (clickHandlerRef.current) {
+        clickHandlerRef.current.destroy();
+        clickHandlerRef.current = null;
+      }
+      if (renderListenerRef.current) {
+        viewer.scene.postRender.removeEventListener(renderListenerRef.current);
+        renderListenerRef.current = null;
+      }
+      layersRef.current = [];
+      kmlSourcesRef.current = [];
+      loadedForMapRef.current = null;
+      hideTooltip();
       viewer.scene.globe.depthTestAgainstTerrain = true;
       viewer.scene.requestRender();
     }
-  }, [viewer, activeMapId]);
+  }, [viewer, activeMapId, hideTooltip]);
 
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return;
 
     const config = getMapConfig(activeMapId);
-    const hasAssets = config.basePlanAssetIds.length > 0 || config.basePlanKmlIds.length > 0;
+    const hasAssets = config.basePlanAssetIds.length > 0 || config.basePlanKmlIds.length > 0 || !!config.namesAssetId;
 
-    if (showBasePlan && layersRef.current.length === 0 && kmlSourcesRef.current.length === 0) {
+    if (showBasePlan && layersRef.current.length === 0 && kmlSourcesRef.current.length === 0 && !namesSourceRef.current) {
       if (!config.basePlanToken || !hasAssets) return;
 
       loadedForMapRef.current = activeMapId;
@@ -80,16 +136,10 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
             clampToGround: false,
           });
           if (viewer.isDestroyed()) return;
-          // Disable depth test so lines don't clip behind terrain
           viewer.scene.globe.depthTestAgainstTerrain = false;
-          // Hide labels and billboards
           ds.entities.values.forEach((entity) => {
-            if (entity.label) {
-              entity.label.show = new Cesium.ConstantProperty(false);
-            }
-            if (entity.billboard) {
-              entity.billboard.show = new Cesium.ConstantProperty(false);
-            }
+            if (entity.label) entity.label.show = new Cesium.ConstantProperty(false);
+            if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
           });
           viewer.dataSources.add(ds);
           kmlSourcesRef.current.push(ds);
@@ -98,93 +148,150 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           console.warn(`Failed to load base plan KML ${assetId}:`, err);
         }
       });
-    } else if (!showBasePlan && (layersRef.current.length > 0 || kmlSourcesRef.current.length > 0)) {
-      // Remove imagery
+
+      // Load names/polygons asset
+      if (config.namesAssetId) {
+        (async () => {
+          try {
+            const resource = await Cesium.IonResource.fromAssetId(config.namesAssetId!, {
+              accessToken: config.namesToken || config.basePlanToken,
+            });
+            if (viewer.isDestroyed()) return;
+            const ds = await Cesium.KmlDataSource.load(resource, {
+              camera: viewer.scene.camera,
+              canvas: viewer.scene.canvas,
+              clampToGround: true,
+            });
+            if (viewer.isDestroyed()) return;
+
+            // Pre-compute area + center for each polygon
+            const entityData = new Map<string, { name: string; areaText: string; center: Cesium.Cartesian3 }>();
+            ds.entities.values.forEach((entity) => {
+              if (entity.polygon) {
+                entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                entity.polygon.outline = new Cesium.ConstantProperty(true);
+                entity.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.WHITE.withAlpha(0.6));
+                entity.polygon.outlineWidth = new Cesium.ConstantProperty(2);
+
+                const h = entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now());
+                if (h?.positions?.length) {
+                  const carto = h.positions.map((p: Cesium.Cartesian3) => Cesium.Cartographic.fromCartesian(p));
+                  const coords = carto.map((c: Cesium.Cartographic) => ({
+                    lon: Cesium.Math.toDegrees(c.longitude),
+                    lat: Cesium.Math.toDegrees(c.latitude),
+                  }));
+                  const areaSqM = computePolygonArea(coords);
+                  const areaHa = areaSqM / 10000;
+                  const areaText = areaHa >= 1 ? `${areaHa.toFixed(2)} ha` : `${areaSqM.toFixed(0)} m²`;
+                  const center = Cesium.BoundingSphere.fromPoints(h.positions).center;
+                  entityData.set(entity.id, { name: entity.name || 'Unknown', areaText, center });
+                }
+              }
+              if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
+              if (entity.label) entity.label.show = new Cesium.ConstantProperty(false);
+            });
+
+            viewer.dataSources.add(ds);
+            namesSourceRef.current = ds;
+
+            // Post-render listener to keep tooltip following camera
+            const onPostRender = () => {
+              if (!tooltipWorldPosRef.current || viewer.isDestroyed()) return;
+              const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, tooltipWorldPosRef.current);
+              if (sp) {
+                setTooltip(prev => prev ? { ...prev, screenX: sp.x, screenY: sp.y } : null);
+              }
+            };
+            viewer.scene.postRender.addEventListener(onPostRender);
+            renderListenerRef.current = onPostRender;
+
+            // Click handler — toggle highlight + tooltip
+            const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+            handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+              const picked = viewer.scene.pick(click.position);
+
+              const resetAll = () => {
+                ds.entities.values.forEach((e) => {
+                  if (e.polygon) {
+                    e.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                  }
+                });
+                hideTooltip();
+                viewer.selectedEntity = undefined;
+              };
+
+              if (Cesium.defined(picked) && picked.id) {
+                const entity = picked.id as Cesium.Entity;
+                if (ds.entities.contains(entity) && entity.polygon) {
+                  if (selectedIdRef.current === entity.id) {
+                    resetAll();
+                  } else {
+                    resetAll();
+                    entity.polygon.material = new Cesium.ColorMaterialProperty(
+                      Cesium.Color.CYAN.withAlpha(0.25)
+                    );
+                    const data = entityData.get(entity.id);
+                    if (data) {
+                      tooltipWorldPosRef.current = data.center;
+                      selectedIdRef.current = entity.id;
+                      const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, data.center);
+                      if (sp) {
+                        setTooltip({
+                          name: data.name,
+                          areaText: data.areaText,
+                          screenX: sp.x,
+                          screenY: sp.y,
+                          worldPos: data.center,
+                        });
+                      }
+                    }
+                  }
+                  viewer.scene.requestRender();
+                  return;
+                }
+              }
+              if (selectedIdRef.current) {
+                resetAll();
+                viewer.scene.requestRender();
+              }
+            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+            clickHandlerRef.current = handler;
+
+            viewer.scene.requestRender();
+          } catch (err) {
+            console.warn(`Failed to load names KML ${config.namesAssetId}:`, err);
+          }
+        })();
+      }
+    } else if (!showBasePlan && (layersRef.current.length > 0 || kmlSourcesRef.current.length > 0 || namesSourceRef.current)) {
       layersRef.current.forEach((layer) => {
         if (!viewer.isDestroyed()) viewer.imageryLayers.remove(layer, true);
       });
-      // Remove KML
       kmlSourcesRef.current.forEach((ds) => {
         if (!viewer.isDestroyed()) viewer.dataSources.remove(ds, true);
       });
+      if (namesSourceRef.current) {
+        if (!viewer.isDestroyed()) viewer.dataSources.remove(namesSourceRef.current, true);
+        namesSourceRef.current = null;
+      }
+      if (clickHandlerRef.current) {
+        clickHandlerRef.current.destroy();
+        clickHandlerRef.current = null;
+      }
+      if (renderListenerRef.current) {
+        viewer.scene.postRender.removeEventListener(renderListenerRef.current);
+        renderListenerRef.current = null;
+      }
       layersRef.current = [];
       kmlSourcesRef.current = [];
       loadedForMapRef.current = null;
-      // Restore depth test when KML removed
+      hideTooltip();
       if (!viewer.isDestroyed()) {
         viewer.scene.globe.depthTestAgainstTerrain = true;
         viewer.scene.requestRender();
       }
     }
-  }, [viewer, showBasePlan, activeMapId]);
-
-  // ── Names overlay (separate toggle) ──
-  const namesSourceRef = useRef<Cesium.CustomDataSource | null>(null);
-  useEffect(() => {
-    if (!viewer || viewer.isDestroyed()) return;
-
-    const config = getMapConfig(activeMapId);
-
-    if (showNames && !namesSourceRef.current && config.namesAssetId) {
-      (async () => {
-        try {
-          const resource = await Cesium.IonResource.fromAssetId(config.namesAssetId!, {
-            accessToken: config.namesToken || '',
-          });
-          if (viewer.isDestroyed()) return;
-          const ds = await Cesium.KmlDataSource.load(resource, {
-            camera: viewer.scene.camera,
-            canvas: viewer.scene.canvas,
-            clampToGround: true,
-          });
-          if (viewer.isDestroyed()) return;
-
-          // Create a custom data source with just labels at polygon centers
-          const namesDs = new Cesium.CustomDataSource('names');
-          ds.entities.values.forEach((entity) => {
-            if (!entity.name) return;
-            // Find polygon positions from this entity or children
-            let positions: Cesium.Cartesian3[] | null = null;
-            if (entity.polygon) {
-              const h = entity.polygon.hierarchy?.getValue(Cesium.JulianDate.now());
-              if (h?.positions?.length) positions = h.positions;
-            }
-            if (!positions) return;
-
-            const center = Cesium.BoundingSphere.fromPoints(positions).center;
-            namesDs.entities.add({
-              position: center,
-              label: new Cesium.LabelGraphics({
-                text: entity.name,
-                font: '13px sans-serif',
-                fillColor: Cesium.Color.WHITE,
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 2,
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                scaleByDistance: new Cesium.NearFarScalar(500, 1.0, 8000, 0.3),
-              }),
-            });
-          });
-
-          console.log(`Names overlay: ${namesDs.entities.values.length} labels created`);
-          viewer.dataSources.add(namesDs);
-          namesSourceRef.current = namesDs;
-          viewer.scene.requestRender();
-        } catch (err) {
-          console.warn(`Failed to load names KML ${config.namesAssetId}:`, err);
-        }
-      })();
-    } else if (!showNames && namesSourceRef.current) {
-      if (!viewer.isDestroyed()) {
-        viewer.dataSources.remove(namesSourceRef.current, true);
-        viewer.scene.requestRender();
-      }
-      namesSourceRef.current = null;
-    }
-  }, [viewer, showNames, activeMapId]);
+  }, [viewer, showBasePlan, activeMapId, hideTooltip]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -196,9 +303,57 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
         layersRef.current = [];
         kmlSourcesRef.current = [];
         namesSourceRef.current = null;
+        if (clickHandlerRef.current) {
+          clickHandlerRef.current.destroy();
+          clickHandlerRef.current = null;
+        }
+        if (renderListenerRef.current) {
+          viewer.scene.postRender.removeEventListener(renderListenerRef.current);
+          renderListenerRef.current = null;
+        }
       }
     };
   }, [viewer]);
 
-  return null;
+  if (!tooltip) return null;
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        left: tooltip.screenX,
+        top: tooltip.screenY,
+        transform: 'translate(-50%, -100%) translateY(-12px)',
+        pointerEvents: 'none',
+        zIndex: 50,
+      }}
+    >
+      <div
+        style={{
+          background: 'rgba(30, 60, 120, 0.92)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: 10,
+          padding: '8px 14px',
+          color: '#fff',
+          textAlign: 'center',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3 }}>{tooltip.name}</div>
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>{tooltip.areaText}</div>
+      </div>
+      {/* Arrow */}
+      <div
+        style={{
+          width: 0,
+          height: 0,
+          borderLeft: '8px solid transparent',
+          borderRight: '8px solid transparent',
+          borderTop: '8px solid rgba(30, 60, 120, 0.92)',
+          margin: '0 auto',
+        }}
+      />
+    </div>
+  );
 }
