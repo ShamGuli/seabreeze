@@ -179,7 +179,7 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           const ds = await Cesium.KmlDataSource.load(resource, {
             camera: viewer.scene.camera,
             canvas: viewer.scene.canvas,
-            clampToGround: false,
+            clampToGround: activeMapId === 'charvak',
           });
           if (viewer.isDestroyed()) return;
           viewer.scene.globe.depthTestAgainstTerrain = false;

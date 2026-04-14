@@ -145,6 +145,15 @@ export default function CesiumMap() {
 
     const config = getMapConfig(activeMapId);
 
+    // Switch terrain: Charvak = real relief, Nardaran = flat
+    if (activeMapId === 'charvak') {
+      Cesium.createWorldTerrainAsync().then((terrain) => {
+        if (!viewer.isDestroyed()) viewer.terrainProvider = terrain;
+      });
+    } else {
+      viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+    }
+
     // Load buildings for new map
     fetchBuildingsForMap(config.buildingsJsonPath).then(setMapBuildings);
 
