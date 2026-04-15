@@ -36,7 +36,7 @@ export const MAP_CONFIGS: MapConfig[] = [
       basePlan: true,
       models3D: true,
     },
-    tilesetTokenKeys: ['TOKEN_3'],
+    tilesetTokenKeys: ['TOKEN_3', 'TOKEN_4'],
     basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     basePlanAssetIds: [4614421, 4614438],
     namesToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
