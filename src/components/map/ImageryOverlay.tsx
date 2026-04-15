@@ -176,6 +176,25 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
             accessToken: config.basePlanToken,
           });
           if (viewer.isDestroyed()) return;
+          // Pass 1: unclamped — only to extract label names + positions
+          const preDs = await Cesium.KmlDataSource.load(resource.clone(), {
+            camera: viewer.scene.camera,
+            canvas: viewer.scene.canvas,
+            clampToGround: false,
+          });
+          if (viewer.isDestroyed()) return;
+          const labelData: { name: string; lon: number; lat: number }[] = [];
+          preDs.entities.values.forEach((entity) => {
+            if (entity.label && entity.position && entity.name) {
+              const pos = entity.position.getValue(Cesium.JulianDate.now());
+              if (pos) {
+                const c = Cesium.Cartographic.fromCartesian(pos);
+                labelData.push({ name: entity.name, lon: c.longitude, lat: c.latitude });
+              }
+            }
+          });
+
+          // Pass 2: clamped — all geometry (polygons + polylines) on terrain
           const ds = await Cesium.KmlDataSource.load(resource, {
             camera: viewer.scene.camera,
             canvas: viewer.scene.canvas,
@@ -184,21 +203,34 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           if (viewer.isDestroyed()) return;
           viewer.scene.globe.depthTestAgainstTerrain = false;
           if (activeMapId === 'charvak') {
-            // Charvak: show labels anchored to object, scale with distance
+            // Hide original KML labels/billboards (prevent duplicates)
             ds.entities.values.forEach((entity) => {
-              if (entity.label) {
-                entity.label.disableDepthTestDistance = new Cesium.ConstantProperty(Number.POSITIVE_INFINITY);
-                entity.label.scaleByDistance = new Cesium.ConstantProperty(
-                  new Cesium.NearFarScalar(500, 1.0, 8000, 0.4)
-                );
-                entity.label.pixelOffset = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, 0));
-                entity.label.horizontalOrigin = new Cesium.ConstantProperty(Cesium.HorizontalOrigin.CENTER);
-                entity.label.verticalOrigin = new Cesium.ConstantProperty(Cesium.VerticalOrigin.CENTER);
-              }
-              if (entity.billboard) {
-                entity.billboard.show = new Cesium.ConstantProperty(false);
-              }
+              if (entity.label) entity.label.show = new Cesium.ConstantProperty(false);
+              if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
             });
+            // Create separate label entities with terrain clamping
+            const labelDs = new Cesium.CustomDataSource('charvak-labels');
+            labelData.forEach(({ name, lon, lat }) => {
+              labelDs.entities.add({
+                position: Cesium.Cartesian3.fromRadians(lon, lat, 0),
+                label: {
+                  text: name,
+                  font: 'bold 15px sans-serif',
+                  fillColor: Cesium.Color.WHITE,
+                  outlineColor: Cesium.Color.BLACK,
+                  outlineWidth: 3,
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                  disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                  scaleByDistance: new Cesium.NearFarScalar(500, 1.2, 8000, 0.5),
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                },
+              });
+            });
+            viewer.dataSources.add(labelDs);
+            kmlSourcesRef.current.push(labelDs as unknown as Cesium.KmlDataSource);
           } else {
             // Nardaran: hide labels/billboards
             ds.entities.values.forEach((entity) => {
