@@ -81,6 +81,14 @@ export const T: TranslationMap = {
   btnLines:  { az: 'Xəttlər', ru: 'Линии',  en: 'Lines'  },
   btnWells:  { az: 'Quyular', ru: 'Колодцы', en: 'Wells'  },
 
+  // ── Communication groups ──
+  commElektrik:      { az: 'Elektrik',      ru: 'Электрика',       en: 'Electricity'    },
+  commDrenaj:        { az: 'Drenaj',        ru: 'Дренаж',          en: 'Drainage'       },
+  commKanalizasiya:  { az: 'Kanalizasiya',  ru: 'Канализация',     en: 'Sewage'         },
+  commQaz:           { az: 'Qaz',           ru: 'Газ',             en: 'Gas'            },
+  commSuIcmeli:      { az: 'Su (içməli)',   ru: 'Вода (питьевая)', en: 'Water (drinking)' },
+  commSuTexniki:     { az: 'Su (texniki)',  ru: 'Вода (техн.)',    en: 'Water (technical)' },
+
   // ── SunSlider ──
   sunPosition:   { az: 'Günəş mövqeyi',       ru: 'Положение солнца', en: 'Sun Position'  },
   periodNight:   { az: 'Gecə',                ru: 'Ночь',             en: 'Night'         },

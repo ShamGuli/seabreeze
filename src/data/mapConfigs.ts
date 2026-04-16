@@ -67,7 +67,7 @@ export const MAP_CONFIGS: MapConfig[] = [
     tilesetTokenKeys: ['CHARVAK_TOKEN'],
     basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_TOKEN || '',
     basePlanAssetIds: [],
-    basePlanKmlIds: [4627837],
+    basePlanKmlIds: [],
   },
 ];
 
