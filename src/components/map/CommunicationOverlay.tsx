@@ -3,16 +3,11 @@
 import { useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { useMapStore, type CommFilterKey } from '@/store/mapStore';
+import { getMapConfig } from '@/data/mapConfigs';
 
 interface CommunicationOverlayProps {
   viewer: Cesium.Viewer | null;
 }
-
-const COMM_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '';
-const COMM_KML_ASSET_ID = 4599391;
-
-const ORTHO_TOKEN = process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '';
-const ORTHO_ASSET_ID = 4250769;
 
 // ── Folder → Group mapping ──
 const FOLDER_TO_GROUP: Record<string, CommFilterKey> = {
@@ -72,7 +67,7 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
   const entityGroupMap = useRef<Map<string, CommFilterKey | 'always'>>(new Map());
   const pointEntityIds = useRef<Set<string>>(new Set());
   const lineEntityIds = useRef<Set<string>>(new Set());
-  const orthoLayerRef = useRef<Cesium.ImageryLayer | null>(null);
+  const orthoLayersRef = useRef<Cesium.ImageryLayer[]>([]);
   const showCommunication = useMapStore((s) => s.showCommunication);
   const activeCommFilters = useMapStore((s) => s.activeCommFilters);
   const showCommWells = useMapStore((s) => s.showCommWells);
@@ -87,10 +82,10 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
       viewer.dataSources.remove(dataSourceRef.current, true);
       dataSourceRef.current = null;
     }
-    if (orthoLayerRef.current) {
-      viewer.imageryLayers.remove(orthoLayerRef.current, true);
-      orthoLayerRef.current = null;
-    }
+    orthoLayersRef.current.forEach((l) => {
+      if (!viewer.isDestroyed()) viewer.imageryLayers.remove(l, true);
+    });
+    orthoLayersRef.current = [];
     entityGroupMap.current.clear();
     pointEntityIds.current.clear();
     lineEntityIds.current.clear();
@@ -104,31 +99,36 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
     cancelledRef.current = false;
 
     if (showCommunication && !dataSourceRef.current) {
-      // Load orthophoto background
-      (async () => {
+      const config = getMapConfig(activeMapId);
+
+      // Load orthophoto background layers
+      (config.orthoAssets ?? []).forEach(async ({ assetId, token }) => {
         try {
-          const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(ORTHO_ASSET_ID, {
-            accessToken: ORTHO_TOKEN,
+          const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(assetId, {
+            accessToken: token,
           });
           if (viewer.isDestroyed() || cancelledRef.current) return;
           const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
           layer.alpha = 1.0;
-          // Double-check: if communication was turned off while loading, remove immediately
           if (cancelledRef.current || !useMapStore.getState().showCommunication) {
             viewer.imageryLayers.remove(layer, true);
             return;
           }
-          orthoLayerRef.current = layer;
+          orthoLayersRef.current.push(layer);
           viewer.scene.requestRender();
         } catch (err) {
-          console.warn('Failed to load orthophoto:', err);
+          console.warn(`Failed to load orthophoto ${assetId}:`, err);
         }
-      })();
+      });
+
+      const commToken = config.commToken || '';
+      const commKmlAssetId = config.commKmlAssetId;
+      if (!commKmlAssetId) return;
 
       (async () => {
         try {
-          const resource = await Cesium.IonResource.fromAssetId(COMM_KML_ASSET_ID, {
-            accessToken: COMM_TOKEN,
+          const resource = await Cesium.IonResource.fromAssetId(commKmlAssetId, {
+            accessToken: commToken,
           });
           if (viewer.isDestroyed() || cancelledRef.current) return;
           const ds = await Cesium.KmlDataSource.load(resource, {
@@ -208,15 +208,15 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           console.warn('Failed to load Communication KML:', err);
         }
       })();
-    } else if (!showCommunication && (dataSourceRef.current || orthoLayerRef.current)) {
+    } else if (!showCommunication && (dataSourceRef.current || orthoLayersRef.current.length > 0)) {
       if (!viewer.isDestroyed()) {
         if (dataSourceRef.current) {
           viewer.dataSources.remove(dataSourceRef.current, true);
         }
-        if (orthoLayerRef.current) {
-          viewer.imageryLayers.remove(orthoLayerRef.current, true);
-          orthoLayerRef.current = null;
-        }
+        orthoLayersRef.current.forEach((l) => {
+          if (!viewer.isDestroyed()) viewer.imageryLayers.remove(l, true);
+        });
+        orthoLayersRef.current = [];
         viewer.scene.requestRender();
       }
       dataSourceRef.current = null;
@@ -268,8 +268,8 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
 
   // ── Toggle ortho visibility ──
   useEffect(() => {
-    if (!orthoLayerRef.current || !viewer || viewer.isDestroyed()) return;
-    orthoLayerRef.current.show = showOrtho;
+    if (orthoLayersRef.current.length === 0 || !viewer || viewer.isDestroyed()) return;
+    orthoLayersRef.current.forEach((l) => { l.show = showOrtho; });
     viewer.scene.requestRender();
   }, [viewer, showOrtho]);
 
@@ -281,10 +281,10 @@ export default function CommunicationOverlay({ viewer }: CommunicationOverlayPro
           viewer.dataSources.remove(dataSourceRef.current, true);
           dataSourceRef.current = null;
         }
-        if (orthoLayerRef.current) {
-          viewer.imageryLayers.remove(orthoLayerRef.current, true);
-          orthoLayerRef.current = null;
-        }
+        orthoLayersRef.current.forEach((l) => {
+          if (!viewer.isDestroyed()) viewer.imageryLayers.remove(l, true);
+        });
+        orthoLayersRef.current = [];
         entityGroupMap.current.clear();
         pointEntityIds.current.clear();
         lineEntityIds.current.clear();

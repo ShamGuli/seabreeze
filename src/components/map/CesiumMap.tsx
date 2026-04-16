@@ -34,6 +34,7 @@ export default function CesiumMap() {
   const setMapBuildings = useMapStore((s) => s.setMapBuildings);
   const setIsMapTransitioning = useMapStore((s) => s.setIsMapTransitioning);
   const is3D = useMapStore((s) => s.is3D);
+  const showBasePlan = useMapStore((s) => s.showBasePlan);
   const activeMapId = useMapStore((s) => s.activeMapId);
   const activeConfig = getMapConfig(activeMapId);
 
@@ -145,12 +146,8 @@ export default function CesiumMap() {
 
     const config = getMapConfig(activeMapId);
 
-    // Switch terrain: Charvak = real relief, Nardaran = flat
-    if (activeMapId === 'charvak') {
-      Cesium.createWorldTerrainAsync({ requestWaterMask: false, requestVertexNormals: false }).then((terrain) => {
-        if (!viewer.isDestroyed()) viewer.terrainProvider = terrain;
-      });
-    } else {
+    // Terrain: Nardaran always flat; Charvak handled by showBasePlan effect
+    if (activeMapId !== 'charvak') {
       viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
     }
 
@@ -175,6 +172,23 @@ export default function CesiumMap() {
       },
     });
   }, [viewer, activeMapId]);
+
+  // ── Charvak terrain: Base Plan = real relief, 3D = flat ──
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed() || activeMapId !== 'charvak') return;
+
+    if (showBasePlan) {
+      Cesium.createWorldTerrainAsync({ requestWaterMask: false, requestVertexNormals: false }).then((terrain) => {
+        if (!viewer.isDestroyed()) {
+          viewer.terrainProvider = terrain;
+          viewer.scene.requestRender();
+        }
+      });
+    } else {
+      viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+      viewer.scene.requestRender();
+    }
+  }, [viewer, activeMapId, showBasePlan]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>

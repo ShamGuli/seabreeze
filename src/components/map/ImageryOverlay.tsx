@@ -46,7 +46,7 @@ function computePolygonArea(coords: { lon: number; lat: number }[]): number {
 }
 
 export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
-  const orthoLayerRef = useRef<Cesium.ImageryLayer | null>(null);
+  const orthoLayersRef = useRef<Cesium.ImageryLayer[]>([]);
   const layersRef = useRef<Cesium.ImageryLayer[]>([]);
   const kmlSourcesRef = useRef<Cesium.KmlDataSource[]>([]);
   const namesSourceRef = useRef<Cesium.KmlDataSource | null>(null);
@@ -84,10 +84,10 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
     if (!viewer || viewer.isDestroyed()) return;
 
     if (loadedForMapRef.current && loadedForMapRef.current !== activeMapId) {
-      if (orthoLayerRef.current) {
-        viewer.imageryLayers.remove(orthoLayerRef.current, true);
-        orthoLayerRef.current = null;
-      }
+      orthoLayersRef.current.forEach((l) => {
+        if (!viewer.isDestroyed()) viewer.imageryLayers.remove(l, true);
+      });
+      orthoLayersRef.current = [];
       layersRef.current.forEach((layer) => {
         if (!viewer.isDestroyed()) viewer.imageryLayers.remove(layer, true);
       });
@@ -121,37 +121,32 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
     const config = getMapConfig(activeMapId);
     const hasAssets = config.basePlanAssetIds.length > 0 || config.basePlanKmlIds.length > 0 || !!config.namesAssetId;
 
-    if (showBasePlan && layersRef.current.length === 0 && kmlSourcesRef.current.length === 0 && !namesSourceRef.current && !orthoLayerRef.current) {
+    if (showBasePlan && layersRef.current.length === 0 && kmlSourcesRef.current.length === 0 && !namesSourceRef.current && orthoLayersRef.current.length === 0) {
       if (!config.basePlanToken || !hasAssets) return;
 
       loadedForMapRef.current = activeMapId;
       cancelledRef.current = false;
 
-      // 1) Load orthophoto (lowest layer)
-      if (config.orthoAssetId && config.orthoToken) {
-        (async () => {
-          try {
-            const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(config.orthoAssetId!, {
-              accessToken: config.orthoToken!,
-            });
-            if (viewer.isDestroyed() || cancelledRef.current) return;
-            const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
-            layer.alpha = 1.0;
-            // Move ortho to bottom of all custom layers (just above the base globe imagery)
-            const baseCount = viewer.imageryLayers.length;
-            const idx = viewer.imageryLayers.indexOf(layer);
-            // Move it below any base plan layers already loaded
-            for (let i = idx; i > 1; i--) {
-              viewer.imageryLayers.lower(layer);
-            }
-            layer.show = useMapStore.getState().showOrtho;
-            orthoLayerRef.current = layer;
-            viewer.scene.requestRender();
-          } catch (err) {
-            console.warn(`Failed to load orthophoto:`, err);
+      // 1) Load orthophoto layers (lowest layers)
+      (config.orthoAssets ?? []).forEach(async ({ assetId, token }) => {
+        try {
+          const orthoProvider = await Cesium.IonImageryProvider.fromAssetId(assetId, {
+            accessToken: token,
+          });
+          if (viewer.isDestroyed() || cancelledRef.current) return;
+          const layer = viewer.imageryLayers.addImageryProvider(orthoProvider);
+          layer.alpha = 1.0;
+          const idx = viewer.imageryLayers.indexOf(layer);
+          for (let i = idx; i > 1; i--) {
+            viewer.imageryLayers.lower(layer);
           }
-        })();
-      }
+          layer.show = useMapStore.getState().showOrtho;
+          orthoLayersRef.current.push(layer);
+          viewer.scene.requestRender();
+        } catch (err) {
+          console.warn(`Failed to load orthophoto ${assetId}:`, err);
+        }
+      });
 
       // 2) Load base plan imagery assets
       config.basePlanAssetIds.forEach(async (assetId) => {
@@ -362,12 +357,12 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           }
         })();
       }
-    } else if (!showBasePlan && (layersRef.current.length > 0 || kmlSourcesRef.current.length > 0 || namesSourceRef.current || orthoLayerRef.current)) {
+    } else if (!showBasePlan && (layersRef.current.length > 0 || kmlSourcesRef.current.length > 0 || namesSourceRef.current || orthoLayersRef.current.length > 0)) {
       cancelledRef.current = true;
-      if (orthoLayerRef.current) {
-        if (!viewer.isDestroyed()) viewer.imageryLayers.remove(orthoLayerRef.current, true);
-        orthoLayerRef.current = null;
-      }
+      orthoLayersRef.current.forEach((l) => {
+        if (!viewer.isDestroyed()) viewer.imageryLayers.remove(l, true);
+      });
+      orthoLayersRef.current = [];
       layersRef.current.forEach((layer) => {
         if (!viewer.isDestroyed()) viewer.imageryLayers.remove(layer, true);
       });
@@ -399,8 +394,8 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
 
   // Toggle ortho visibility
   useEffect(() => {
-    if (!orthoLayerRef.current || !viewer || viewer.isDestroyed()) return;
-    orthoLayerRef.current.show = showOrtho;
+    if (orthoLayersRef.current.length === 0 || !viewer || viewer.isDestroyed()) return;
+    orthoLayersRef.current.forEach((l) => { l.show = showOrtho; });
     viewer.scene.requestRender();
   }, [viewer, showOrtho]);
 
@@ -417,7 +412,8 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   useEffect(() => {
     return () => {
       if (viewer && !viewer.isDestroyed()) {
-        if (orthoLayerRef.current) viewer.imageryLayers.remove(orthoLayerRef.current, true);
+        orthoLayersRef.current.forEach((l) => viewer.imageryLayers.remove(l, true));
+        orthoLayersRef.current = [];
         layersRef.current.forEach((layer) => viewer.imageryLayers.remove(layer, true));
         kmlSourcesRef.current.forEach((ds) => viewer.dataSources.remove(ds, true));
         if (namesSourceRef.current) viewer.dataSources.remove(namesSourceRef.current, true);

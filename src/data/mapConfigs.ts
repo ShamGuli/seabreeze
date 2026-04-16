@@ -17,8 +17,7 @@ export interface MapConfig {
   basePlanKmlIds: number[];         // KML assets (polygons, lines)
   commToken?: string;
   commKmlAssetId?: number;
-  orthoToken?: string;
-  orthoAssetId?: number;
+  orthoAssets?: { assetId: number; token: string }[];
   namesToken?: string;
   namesAssetId?: number;
 }
@@ -44,8 +43,10 @@ export const MAP_CONFIGS: MapConfig[] = [
     basePlanKmlIds: [],
     commToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     commKmlAssetId: 4599391,
-    orthoToken: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '',
-    orthoAssetId: 4250769,
+    orthoAssets: [
+      { assetId: 4250769, token: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '' },
+      { assetId: 4631310, token: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN_2 || '' },
+    ],
   },
   {
     id: 'charvak',
@@ -60,7 +61,7 @@ export const MAP_CONFIGS: MapConfig[] = [
       models3D: true,
     },
     tilesetTokenKeys: [],
-    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_TOKEN || '',
     basePlanAssetIds: [],
     basePlanKmlIds: [4614767],
   },
