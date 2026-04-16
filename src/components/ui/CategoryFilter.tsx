@@ -78,6 +78,8 @@ export default function CategoryFilter() {
   const showBasePlan = useMapStore((s) => s.showBasePlan);
   const showBasePlanLayers = useMapStore((s) => s.showBasePlanLayers);
   const toggleBasePlanLayers = useMapStore((s) => s.toggleBasePlanLayers);
+  const showRoads = useMapStore((s) => s.showRoads);
+  const toggleRoads = useMapStore((s) => s.toggleRoads);
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
@@ -237,6 +239,22 @@ export default function CategoryFilter() {
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
           Plan
+        </button>
+        <button
+          onClick={toggleRoads}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showRoads ? '#F59E0B' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 19L12 5l8 14" /><path d="M8 13h8" /></svg>
+          Yol
         </button>
       </div>
     );

@@ -18,6 +18,8 @@ export interface MapConfig {
   commToken?: string;
   commKmlAssetId?: number;
   orthoAssets?: { assetId: number; token: string }[];
+  roadKmlId?: number;
+  roadKmlToken?: string;
   namesToken?: string;
   namesAssetId?: number;
 }
@@ -36,8 +38,8 @@ export const MAP_CONFIGS: MapConfig[] = [
       models3D: true,
     },
     tilesetTokenKeys: ['TOKEN_3', 'TOKEN_4'],
-    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
-    basePlanAssetIds: [4614421, 4614438],
+    basePlanToken: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN_2 || '',
+    basePlanAssetIds: [4630772],
     namesToken: process.env.NEXT_PUBLIC_CESIUM_ASSET_TOKEN || '',
     namesAssetId: 4619773,
     basePlanKmlIds: [],
@@ -47,6 +49,8 @@ export const MAP_CONFIGS: MapConfig[] = [
       { assetId: 4250769, token: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN || '' },
       { assetId: 4631310, token: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN_2 || '' },
     ],
+    roadKmlId: 4630705,
+    roadKmlToken: process.env.NEXT_PUBLIC_CESIUM_ORTHO_TOKEN_2 || '',
   },
   {
     id: 'charvak',

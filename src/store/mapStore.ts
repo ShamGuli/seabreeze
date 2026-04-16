@@ -25,6 +25,7 @@ interface MapState {
   showCategoryBar: boolean;
   showOrtho: boolean;
   showBasePlanLayers: boolean;
+  showRoads: boolean;
   setActiveMap: (mapId: string) => void;
   setIsMapTransitioning: (val: boolean) => void;
   setMapBuildings: (buildings: Building[]) => void;
@@ -44,6 +45,7 @@ interface MapState {
   setAllCommFilters: (on: boolean) => void;
   toggleOrtho: () => void;
   toggleBasePlanLayers: () => void;
+  toggleRoads: () => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -65,6 +67,7 @@ export const useMapStore = create<MapState>((set) => ({
   showCategoryBar: false,
   showOrtho: false,
   showBasePlanLayers: true,
+  showRoads: false,
   setActiveMap: (mapId) => {
     set({
       activeMapId: mapId,
@@ -97,7 +100,7 @@ export const useMapStore = create<MapState>((set) => ({
   setFlyToOverview: (fn) => set({ flyToOverview: fn }),
   setIs3D: (val) => set(val ? { is3D: true, showBasePlan: false, showCommunication: false } : { is3D: false }),
   setIs3DLoading: (val) => set({ is3DLoading: val }),
-  setShowBasePlan: (val) => set(val ? { showBasePlan: true, is3D: false, showCommunication: false, selectedBuilding: null, showOrtho: false, showBasePlanLayers: true } : { showBasePlan: false }),
+  setShowBasePlan: (val) => set(val ? { showBasePlan: true, is3D: false, showCommunication: false, selectedBuilding: null, showOrtho: false, showBasePlanLayers: true, showRoads: false } : { showBasePlan: false }),
   setShowCommunication: (val) => set(val
     ? { showCommunication: true, is3D: false, showBasePlan: false, activeCommFilters: [...ALL_COMM], showCommWells: true, showCommLines: true, showOrtho: true }
     : { showCommunication: false }
@@ -109,4 +112,5 @@ export const useMapStore = create<MapState>((set) => ({
   setAllCommFilters: (on) => set({ activeCommFilters: on ? [...ALL_COMM] : [] }),
   toggleOrtho: () => set((s) => ({ showOrtho: !s.showOrtho })),
   toggleBasePlanLayers: () => set((s) => ({ showBasePlanLayers: !s.showBasePlanLayers })),
+  toggleRoads: () => set((s) => ({ showRoads: !s.showRoads })),
 }));
