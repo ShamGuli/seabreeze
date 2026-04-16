@@ -74,6 +74,13 @@ export const T: TranslationMap = {
   myLocation:   { az: 'Mənim yerim',             ru: 'Моё местоположение',        en: 'My Location'         },
   locationDenied: { az: 'Məkana giriş rədd edildi', ru: 'Доступ к местоположению запрещён', en: 'Location access denied' },
 
+  // ── Base Plan / Communication toggles ──
+  btnOrtho:  { az: 'Ortho',   ru: 'Орто',   en: 'Ortho'  },
+  btnPlan:   { az: 'Plan',    ru: 'План',   en: 'Plan'   },
+  btnRoad:   { az: 'Yol',     ru: 'Дороги', en: 'Roads'  },
+  btnLines:  { az: 'Xəttlər', ru: 'Линии',  en: 'Lines'  },
+  btnWells:  { az: 'Quyular', ru: 'Колодцы', en: 'Wells'  },
+
   // ── SunSlider ──
   sunPosition:   { az: 'Günəş mövqeyi',       ru: 'Положение солнца', en: 'Sun Position'  },
   periodNight:   { az: 'Gecə',                ru: 'Ночь',             en: 'Night'         },

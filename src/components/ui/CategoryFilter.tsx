@@ -155,7 +155,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 3v18" /></svg>
-          Ortho
+          {t('btnOrtho')}
         </button>
 
         {/* Xəttlər toggle */}
@@ -173,7 +173,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M3 17l6-6 4 4 8-8" /></svg>
-          Xəttlər
+          {t('btnLines')}
         </button>
 
         {/* Quyular toggle */}
@@ -191,7 +191,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill={showCommWells ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="8" /></svg>
-          Quyular
+          {t('btnWells')}
         </button>
       </div>
     );
@@ -222,7 +222,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 3v18" /></svg>
-          Ortho
+          {t('btnOrtho')}
         </button>
         <button
           onClick={toggleBasePlanLayers}
@@ -238,7 +238,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
-          Plan
+          {t('btnPlan')}
         </button>
         <button
           onClick={toggleRoads}
@@ -254,7 +254,7 @@ export default function CategoryFilter() {
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 19L12 5l8 14" /><path d="M8 13h8" /></svg>
-          Yol
+          {t('btnRoad')}
         </button>
       </div>
     );

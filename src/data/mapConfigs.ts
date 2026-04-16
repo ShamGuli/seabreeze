@@ -64,10 +64,10 @@ export const MAP_CONFIGS: MapConfig[] = [
       basePlan: true,
       models3D: true,
     },
-    tilesetTokenKeys: [],
+    tilesetTokenKeys: ['CHARVAK_TOKEN'],
     basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_TOKEN || '',
     basePlanAssetIds: [],
-    basePlanKmlIds: [4614767],
+    basePlanKmlIds: [4627837],
   },
 ];
 
