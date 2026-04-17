@@ -23,6 +23,7 @@ import ImageryOverlay from './ImageryOverlay';
 import CommunicationOverlay from './CommunicationOverlay';
 import RoadOverlay from './RoadOverlay';
 import CharvakBasePlan from './CharvakBasePlan';
+import CharvakZone from './CharvakZone';
 import AiChat from '../ui/AiChat';
 import { useMapStore } from '@/store/mapStore';
 import { getMapConfig } from '@/data/mapConfigs';
@@ -208,6 +209,7 @@ export default function CesiumMap() {
       <CommunicationOverlay viewer={viewer} />
       <RoadOverlay viewer={viewer} />
       <CharvakBasePlan viewer={viewer} />
+      <CharvakZone viewer={viewer} />
       <AiChat />
       <Sidebar />
     </div>

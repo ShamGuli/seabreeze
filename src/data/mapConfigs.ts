@@ -27,7 +27,7 @@ export interface MapConfig {
 export const MAP_CONFIGS: MapConfig[] = [
   {
     id: 'nardaran',
-    nameI18n: { az: 'Nardaran', ru: 'Нардаран', en: 'Nardaran' },
+    nameI18n: { az: 'SB Bakı', ru: 'SB Баку', en: 'SB Baku' },
     center: { longitude: 49.940, latitude: 40.582 },
     initialHeight: 5000,
     initialPitch: -90,
@@ -54,7 +54,7 @@ export const MAP_CONFIGS: MapConfig[] = [
   },
   {
     id: 'charvak',
-    nameI18n: { az: 'Çarvak', ru: 'Чарвак', en: 'Charvak' },
+    nameI18n: { az: 'SB Özbəkistan', ru: 'SB Узбекистан', en: 'SB Uzbekistan' },
     center: { longitude: 70.060, latitude: 41.655 },
     initialHeight: 5000,
     initialPitch: -90,
