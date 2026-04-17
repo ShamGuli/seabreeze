@@ -145,10 +145,11 @@ export default function CharvakZone({ viewer }: Props) {
             if (Cesium.defined(picked) && picked.id && typeof picked.id === 'string') {
               const zone = zoneMapRef.current.get(picked.id);
               if (zone) {
-                tooltipWorldRef.current = zone.center;
-                const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, zone.center);
-                if (sp) {
-                  setTooltip({ nameKey: zone.nameKey, area: zone.area, color: zone.fill, screenX: sp.x, screenY: sp.y });
+                // Use click position on globe as tooltip anchor
+                const worldPos = viewer.scene.pickPosition(click.position);
+                if (worldPos) {
+                  tooltipWorldRef.current = worldPos;
+                  setTooltip({ nameKey: zone.nameKey, area: zone.area, color: zone.fill, screenX: click.position.x, screenY: click.position.y });
                 }
                 viewer.scene.requestRender();
                 return;
