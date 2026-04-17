@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Cesium from 'cesium';
 import { useMapStore } from '@/store/mapStore';
+import { useLang } from '@/context/LanguageContext';
 
 interface Props {
   viewer: Cesium.Viewer | null;
@@ -13,12 +14,15 @@ interface ZonePoly {
   fillAlpha: number;
   stroke: string;
   strokeWidth: number;
-  name: string;
+  nameKey?: string;
+  area?: string;
+  name?: string;
   pts: number[][];
 }
 
 interface ZoneTooltip {
-  name: string;
+  nameKey: string;
+  area?: string;
   color: string;
   screenX: number;
   screenY: number;
@@ -41,11 +45,12 @@ export default function CharvakZone({ viewer }: Props) {
   const outlineRef = useRef<Cesium.GroundPolylinePrimitive[]>([]);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const renderListenerRef = useRef<(() => void) | null>(null);
-  const zoneMapRef = useRef<Map<string, { name: string; fill: string; center: Cesium.Cartesian3 }>>(new Map());
+  const zoneMapRef = useRef<Map<string, { nameKey: string; area?: string; fill: string; center: Cesium.Cartesian3 }>>(new Map());
   const tooltipWorldRef = useRef<Cesium.Cartesian3 | null>(null);
   const loadedRef = useRef(false);
   const showZone = useMapStore((s) => s.showZone);
   const activeMapId = useMapStore((s) => s.activeMapId);
+  const { t } = useLang();
   const [tooltip, setTooltip] = useState<ZoneTooltip | null>(null);
 
   useEffect(() => {
@@ -84,11 +89,11 @@ export default function CharvakZone({ viewer }: Props) {
             } catch { return; }
 
             // Store zone data for click lookup
-            if (poly.name && !poly.name.match(/^\d/)) {
+            if (poly.nameKey) {
               let sumLon = 0, sumLat = 0;
               poly.pts.forEach(([lon, lat]) => { sumLon += lon; sumLat += lat; });
               const center = Cesium.Cartesian3.fromDegrees(sumLon / poly.pts.length, sumLat / poly.pts.length);
-              zoneMapRef.current.set(instanceId, { name: poly.name, fill: poly.fill, center });
+              zoneMapRef.current.set(instanceId, { nameKey: poly.nameKey, area: poly.area, fill: poly.fill, center });
             }
 
             // Outline
@@ -143,7 +148,7 @@ export default function CharvakZone({ viewer }: Props) {
                 tooltipWorldRef.current = zone.center;
                 const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, zone.center);
                 if (sp) {
-                  setTooltip({ name: zone.name, color: zone.fill, screenX: sp.x, screenY: sp.y });
+                  setTooltip({ nameKey: zone.nameKey, area: zone.area, color: zone.fill, screenX: sp.x, screenY: sp.y });
                 }
                 viewer.scene.requestRender();
                 return;
@@ -208,6 +213,8 @@ export default function CharvakZone({ viewer }: Props) {
   if (!tooltip) return null;
 
   const dotColor = ZONE_COLORS[tooltip.color] || tooltip.color;
+  let label = t(tooltip.nameKey);
+  if (tooltip.area) label = label.replace('{area}', tooltip.area);
 
   return (
     <div
@@ -241,7 +248,7 @@ export default function CharvakZone({ viewer }: Props) {
           border: '2px solid rgba(255,255,255,0.5)',
         }} />
         <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3 }}>
-          {tooltip.name}
+          {label}
         </div>
       </div>
       <div

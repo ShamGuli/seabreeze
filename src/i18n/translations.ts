@@ -89,6 +89,16 @@ export const T: TranslationMap = {
   commSuIcmeli:      { az: 'Su (içməli)',   ru: 'Вода (питьевая)', en: 'Water (drinking)' },
   commSuTexniki:     { az: 'Su (texniki)',  ru: 'Вода (техн.)',    en: 'Water (technical)' },
 
+  // ── Charvak Zone names ──
+  zoneCancelled:    { az: 'Ləğv edilmiş ərazilər',                                          ru: 'Аннулированные территории',                                                          en: 'Cancelled territories'                                            },
+  zoneTransferLater:{ az: 'Sonra təhvil veriləcək ərazilər',                                 ru: 'Территории, которые будут переданы позже',                                           en: 'Territories to be transferred later'                              },
+  zoneActive:       { az: 'Aktiv zona (hiking, idman meydançaları, parklar)',                 ru: 'Активная зона (хайкинг, спорт. пл., парки)',                                         en: 'Active zone (hiking, sports, parks)'                              },
+  zoneVillas:       { az: 'Villa və kottec tipli yaşayış zonası',                            ru: 'Жилая зона вилл и коттеджного типа',                                                 en: 'Residential zone of villas and cottages'                          },
+  zoneCoastal:      { az: 'Qarışıq tipli sahil zonası (otellər, restoranlar, çimərlik klubları, teatrlar)', ru: 'Прибрежная зона смешанного типа (отели, рестораны, пляжные клубы, театры)', en: 'Mixed-use coastal zone (hotels, restaurants, beach clubs, theatres)' },
+  zoneMidRise:      { az: 'Orta mərtəbəli yaşayış zonası',                                  ru: 'Жилая зона средней этажности',                                                       en: 'Mid-rise residential zone'                                       },
+  zoneHighRise:     { az: 'Hündürmərtəbəli yaşayış və otel zonası',                          ru: 'Жилая и отельная зона высокой этажности',                                            en: 'High-rise residential and hotel zone'                             },
+  zoneTerritory:    { az: 'Ərazi ({area} ha)',                                               ru: 'Территория ({area} ha)',                                                              en: 'Territory ({area} ha)'                                            },
+
   // ── SunSlider ──
   sunPosition:   { az: 'Günəş mövqeyi',       ru: 'Положение солнца', en: 'Sun Position'  },
   periodNight:   { az: 'Gecə',                ru: 'Ночь',             en: 'Night'         },
