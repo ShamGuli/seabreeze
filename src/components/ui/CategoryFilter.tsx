@@ -80,6 +80,43 @@ export default function CategoryFilter() {
   const toggleBasePlanLayers = useMapStore((s) => s.toggleBasePlanLayers);
   const showRoads = useMapStore((s) => s.showRoads);
   const toggleRoads = useMapStore((s) => s.toggleRoads);
+  const is3D = useMapStore((s) => s.is3D);
+  const setIs3D = useMapStore((s) => s.setIs3D);
+  const showZone = useMapStore((s) => s.showZone);
+  const toggleZone = useMapStore((s) => s.toggleZone);
+  const show3DZone = useMapStore((s) => s.show3DZone);
+  const toggle3DZone = useMapStore((s) => s.toggle3DZone);
+
+  // ═══ 3D MODE (Charvak — Zone toggle on flat) ═══
+  if (is3D && activeMapId === 'charvak') {
+    return (
+      <div className="animate-slide-up" style={{
+        position: 'absolute', bottom: 20, left: 0, right: 0,
+        marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
+        zIndex: 20, display: 'flex', gap: 4, alignItems: 'center',
+        padding: '4px 6px', borderRadius: 16,
+        background: 'rgba(15,15,20,0.85)',
+        backdropFilter: 'blur(12px)',
+      }}>
+        <button
+          onClick={toggle3DZone}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: show3DZone ? '#8B5CF6' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" /><path d="M12 22V12" /><path d="M2 7l10 5 10-5" /></svg>
+          {t('btnZone')}
+        </button>
+      </div>
+    );
+  }
 
   // ═══ COMMUNICATION MODE ═══
   if (showCommunication) {
@@ -255,6 +292,37 @@ export default function CategoryFilter() {
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 19L12 5l8 14" /><path d="M8 13h8" /></svg>
           {t('btnRoad')}
+        </button>
+      </div>
+    );
+  }
+
+  // ═══ BASE PLAN MODE (Charvak — Zone toggle) ═══
+  if (showBasePlan && !showCommunication && activeMapId === 'charvak') {
+    return (
+      <div className="animate-slide-up" style={{
+        position: 'absolute', bottom: 20, left: 0, right: 0,
+        marginLeft: 'auto', marginRight: 'auto', width: 'fit-content',
+        zIndex: 20, display: 'flex', gap: 4, alignItems: 'center',
+        padding: '4px 6px', borderRadius: 16,
+        background: 'rgba(15,15,20,0.85)',
+        backdropFilter: 'blur(12px)',
+      }}>
+        <button
+          onClick={toggleZone}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showZone ? '#8B5CF6' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z" /><path d="M12 22V12" /><path d="M2 7l10 5 10-5" /></svg>
+          {t('btnZone')}
         </button>
       </div>
     );

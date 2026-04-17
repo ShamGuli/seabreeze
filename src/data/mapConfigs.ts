@@ -12,6 +12,7 @@ export interface MapConfig {
   };
   // Ion tokens and assets
   tilesetTokenKeys: string[];
+  excludeAssetIds?: number[];
   basePlanToken: string;
   basePlanAssetIds: number[];       // IMAGERY assets
   basePlanKmlIds: number[];         // KML assets (polygons, lines)
@@ -65,6 +66,7 @@ export const MAP_CONFIGS: MapConfig[] = [
       models3D: true,
     },
     tilesetTokenKeys: ['CHARVAK_TOKEN'],
+    excludeAssetIds: [],
     basePlanToken: process.env.NEXT_PUBLIC_CESIUM_CHARVAK_TOKEN || '',
     basePlanAssetIds: [],
     basePlanKmlIds: [],

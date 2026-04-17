@@ -16,7 +16,6 @@ interface ZonePoly {
   strokeWidth: number;
   nameKey?: string;
   area?: string;
-  name?: string;
   pts: number[][];
 }
 
@@ -28,7 +27,6 @@ interface ZoneTooltip {
   screenY: number;
 }
 
-// Color legend for zone types
 const ZONE_COLORS: Record<string, string> = {
   '#ff0000': '#EF4444',
   '#ffff00': '#EAB308',
@@ -41,23 +39,29 @@ const ZONE_COLORS: Record<string, string> = {
 };
 
 export default function CharvakZone({ viewer }: Props) {
-  const primitivesRef = useRef<Cesium.GroundPrimitive[]>([]);
-  const outlineRef = useRef<Cesium.GroundPolylinePrimitive[]>([]);
+  const fillPrimsRef = useRef<Cesium.GroundPrimitive[]>([]);
+  const outlinePrimsRef = useRef<Cesium.GroundPolylinePrimitive[]>([]);
   const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const renderListenerRef = useRef<(() => void) | null>(null);
-  const zoneMapRef = useRef<Map<string, { nameKey: string; area?: string; fill: string; center: Cesium.Cartesian3 }>>(new Map());
+  const zoneMapRef = useRef<Map<string, { nameKey: string; area?: string; fill: string }>>(new Map());
   const tooltipWorldRef = useRef<Cesium.Cartesian3 | null>(null);
-  const loadedRef = useRef(false);
+  const dataLoadedRef = useRef(false);
+
   const showZone = useMapStore((s) => s.showZone);
+  const show3DZone = useMapStore((s) => s.show3DZone);
   const activeMapId = useMapStore((s) => s.activeMapId);
   const { t } = useLang();
   const [tooltip, setTooltip] = useState<ZoneTooltip | null>(null);
 
+  const zoneVisible = showZone || show3DZone;
+
+  // ── Load zone data ONCE, then just toggle .show ──
   useEffect(() => {
     if (!viewer || viewer.isDestroyed() || activeMapId !== 'charvak') return;
 
-    if (showZone && !loadedRef.current) {
-      loadedRef.current = true;
+    // First time zone is requested → load primitives
+    if (zoneVisible && !dataLoadedRef.current) {
+      dataLoadedRef.current = true;
 
       (async () => {
         try {
@@ -88,12 +92,8 @@ export default function CharvakZone({ viewer }: Props) {
               );
             } catch { return; }
 
-            // Store zone data for click lookup
             if (poly.nameKey) {
-              let sumLon = 0, sumLat = 0;
-              poly.pts.forEach(([lon, lat]) => { sumLon += lon; sumLat += lat; });
-              const center = Cesium.Cartesian3.fromDegrees(sumLon / poly.pts.length, sumLat / poly.pts.length);
-              zoneMapRef.current.set(instanceId, { nameKey: poly.nameKey, area: poly.area, fill: poly.fill, center });
+              zoneMapRef.current.set(instanceId, { nameKey: poly.nameKey, area: poly.area, fill: poly.fill });
             }
 
             // Outline
@@ -103,7 +103,7 @@ export default function CharvakZone({ viewer }: Props) {
                 geometryInstances: [new Cesium.GeometryInstance({
                   geometry: new Cesium.GroundPolylineGeometry({
                     positions: outlinePositions,
-                    width: poly.strokeWidth || 1,
+                    width: Math.max(poly.strokeWidth || 1, 0.5),
                   }),
                   id: `zone-outline-${i}`,
                 })],
@@ -115,11 +115,10 @@ export default function CharvakZone({ viewer }: Props) {
                 asynchronous: true,
               });
               viewer.scene.groundPrimitives.add(outlinePrim);
-              outlineRef.current.push(outlinePrim);
+              outlinePrimsRef.current.push(outlinePrim);
             } catch { /* skip */ }
           });
 
-          // Create fill primitives
           for (const group of Object.values(groups)) {
             if (group.instances.length === 0) continue;
             try {
@@ -131,7 +130,7 @@ export default function CharvakZone({ viewer }: Props) {
                 asynchronous: true,
               });
               viewer.scene.groundPrimitives.add(prim);
-              primitivesRef.current.push(prim);
+              fillPrimsRef.current.push(prim);
             } catch (err) {
               console.warn('Zone primitive error:', err);
             }
@@ -141,11 +140,9 @@ export default function CharvakZone({ viewer }: Props) {
           const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
           handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
             const picked = viewer.scene.pick(click.position);
-
             if (Cesium.defined(picked) && picked.id && typeof picked.id === 'string') {
               const zone = zoneMapRef.current.get(picked.id);
               if (zone) {
-                // Use click position on globe as tooltip anchor
                 const worldPos = viewer.scene.pickPosition(click.position);
                 if (worldPos) {
                   tooltipWorldRef.current = worldPos;
@@ -155,22 +152,15 @@ export default function CharvakZone({ viewer }: Props) {
                 return;
               }
             }
-
-            // Click outside — close tooltip
-            if (tooltip || tooltipWorldRef.current) {
-              setTooltip(null);
-              tooltipWorldRef.current = null;
-            }
+            setTooltip(null);
+            tooltipWorldRef.current = null;
           }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
           handlerRef.current = handler;
 
-          // Track tooltip position on camera move
           const onPostRender = () => {
             if (!tooltipWorldRef.current || viewer.isDestroyed()) return;
             const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, tooltipWorldRef.current);
-            if (sp) {
-              setTooltip(prev => prev ? { ...prev, screenX: sp.x, screenY: sp.y } : null);
-            }
+            if (sp) setTooltip(prev => prev ? { ...prev, screenX: sp.x, screenY: sp.y } : null);
           };
           viewer.scene.postRender.addEventListener(onPostRender);
           renderListenerRef.current = onPostRender;
@@ -180,36 +170,47 @@ export default function CharvakZone({ viewer }: Props) {
           console.warn('Failed to load Charvak zone:', err);
         }
       })();
-    } else if (!showZone && loadedRef.current) {
-      cleanup();
     }
-  }, [viewer, showZone, activeMapId]);
+  }, [viewer, zoneVisible, activeMapId]);
 
-  function cleanup() {
-    if (!viewer || viewer.isDestroyed()) return;
-    primitivesRef.current.forEach((p) => { if (!viewer.isDestroyed()) viewer.scene.groundPrimitives.remove(p); });
-    outlineRef.current.forEach((p) => { if (!viewer.isDestroyed()) viewer.scene.groundPrimitives.remove(p); });
-    primitivesRef.current = [];
-    outlineRef.current = [];
-    zoneMapRef.current.clear();
-    if (handlerRef.current) { handlerRef.current.destroy(); handlerRef.current = null; }
-    if (renderListenerRef.current) { viewer.scene.postRender.removeEventListener(renderListenerRef.current); renderListenerRef.current = null; }
-    setTooltip(null);
-    tooltipWorldRef.current = null;
-    loadedRef.current = false;
-    if (!viewer.isDestroyed()) viewer.scene.requestRender();
-  }
+  // ── Toggle visibility (no reload) ──
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed() || !dataLoadedRef.current) return;
+    fillPrimsRef.current.forEach((p) => { p.show = zoneVisible; });
+    outlinePrimsRef.current.forEach((p) => { p.show = zoneVisible; });
+    if (!zoneVisible) {
+      setTooltip(null);
+      tooltipWorldRef.current = null;
+    }
+    viewer.scene.requestRender();
+  }, [viewer, zoneVisible]);
 
-  // Cleanup on map change
+  // ── Cleanup on map change ──
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return;
-    if (activeMapId !== 'charvak' && loadedRef.current) cleanup();
+    if (activeMapId !== 'charvak' && dataLoadedRef.current) {
+      destroyAll();
+    }
   }, [viewer, activeMapId]);
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => { cleanup(); };
+    return () => { destroyAll(); };
   }, [viewer]);
+
+  function destroyAll() {
+    if (!viewer || viewer.isDestroyed()) return;
+    fillPrimsRef.current.forEach((p) => { if (!viewer.isDestroyed()) viewer.scene.groundPrimitives.remove(p); });
+    outlinePrimsRef.current.forEach((p) => { if (!viewer.isDestroyed()) viewer.scene.groundPrimitives.remove(p); });
+    fillPrimsRef.current = [];
+    outlinePrimsRef.current = [];
+    zoneMapRef.current.clear();
+    if (handlerRef.current) { handlerRef.current.destroy(); handlerRef.current = null; }
+    if (renderListenerRef.current && !viewer.isDestroyed()) { viewer.scene.postRender.removeEventListener(renderListenerRef.current); renderListenerRef.current = null; }
+    setTooltip(null);
+    tooltipWorldRef.current = null;
+    dataLoadedRef.current = false;
+  }
 
   if (!tooltip) return null;
 
@@ -220,47 +221,29 @@ export default function CharvakZone({ viewer }: Props) {
   return (
     <div
       style={{
-        position: 'fixed',
-        left: tooltip.screenX,
-        top: tooltip.screenY,
+        position: 'fixed', left: tooltip.screenX, top: tooltip.screenY,
         transform: 'translate(-50%, -100%) translateY(-14px)',
-        pointerEvents: 'none',
-        zIndex: 50,
+        pointerEvents: 'none', zIndex: 50,
       }}
     >
-      <div
-        style={{
-          background: 'rgba(20, 20, 35, 0.92)',
-          backdropFilter: 'blur(8px)',
-          borderRadius: 10,
-          padding: '10px 16px',
-          color: '#fff',
-          textAlign: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-          maxWidth: 280,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
+      <div style={{
+        background: 'rgba(20, 20, 35, 0.92)', backdropFilter: 'blur(8px)',
+        borderRadius: 10, padding: '10px 16px', color: '#fff',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4)', maxWidth: 280,
+        display: 'flex', alignItems: 'center', gap: 8,
+      }}>
         <div style={{
           width: 12, height: 12, borderRadius: '50%',
           background: dotColor, flexShrink: 0,
           border: '2px solid rgba(255,255,255,0.5)',
         }} />
-        <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3 }}>
-          {label}
-        </div>
+        <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3 }}>{label}</div>
       </div>
-      <div
-        style={{
-          width: 0, height: 0,
-          borderLeft: '8px solid transparent',
-          borderRight: '8px solid transparent',
-          borderTop: '8px solid rgba(20, 20, 35, 0.92)',
-          margin: '0 auto',
-        }}
-      />
+      <div style={{
+        width: 0, height: 0,
+        borderLeft: '8px solid transparent', borderRight: '8px solid transparent',
+        borderTop: '8px solid rgba(20, 20, 35, 0.92)', margin: '0 auto',
+      }} />
     </div>
   );
 }

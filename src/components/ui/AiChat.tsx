@@ -103,9 +103,8 @@ export default function AiChat() {
           bottom: 24,
           right: 24,
           zIndex: 100,
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
+          height: 40,
+          borderRadius: isChatOpen ? '50%' : 20,
           border: '1px solid rgba(255,255,255,0.2)',
           background: isChatOpen ? 'rgba(0,150,255,0.5)' : 'rgba(15,15,30,0.85)',
           backdropFilter: 'blur(10px)',
@@ -114,19 +113,28 @@ export default function AiChat() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'background 0.2s',
+          gap: 6,
+          padding: isChatOpen ? '0 10px' : '0 14px',
+          transition: 'all 0.2s',
+          width: isChatOpen ? 40 : 'auto',
         }}
         title={t('chatTitle')}
       >
         {isChatOpen ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
+          <>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              {/* Chat bubble with sparkles */}
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <path d="M9.5 8l.5 1 .5-1 1-.5-1-.5L10 6l-.5 1-1 .5 1 .5z" fill="white" stroke="none" />
+              <path d="M14.5 10l.5 1.5.5-1.5 1.5-.5-1.5-.5-.5-1.5-.5 1.5-1.5.5 1.5.5z" fill="white" stroke="none" />
+            </svg>
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.3 }}>AI Assistant</span>
+          </>
         )}
       </button>
 

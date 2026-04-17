@@ -49,15 +49,20 @@ export default function CharvakBasePlan({ viewer }: Props) {
           // ── Lines ──
           for (const [color, group] of Object.entries(data.lines)) {
             const cesiumColor = Cesium.Color.fromCssColorString(color).withAlpha(0.9);
-            const instances = group.segs.map((pts, i) =>
-              new Cesium.GeometryInstance({
-                geometry: new Cesium.GroundPolylineGeometry({
-                  positions: pts.map(([lon, lat]) => Cesium.Cartesian3.fromDegrees(lon, lat)),
-                  width: group.width || 2.0,
-                }),
-                id: `charvak-line-${color}-${i}`,
+            const instances = group.segs
+              .filter((pts) => pts.length >= 2)
+              .map((pts, i) => {
+                try {
+                  return new Cesium.GeometryInstance({
+                    geometry: new Cesium.GroundPolylineGeometry({
+                      positions: pts.map(([lon, lat]) => Cesium.Cartesian3.fromDegrees(lon, lat)),
+                      width: Math.max(group.width || 2.0, 0.5),
+                    }),
+                    id: `charvak-line-${color}-${i}`,
+                  });
+                } catch { return null; }
               })
-            );
+              .filter(Boolean) as Cesium.GeometryInstance[];
             if (instances.length === 0) continue;
 
             const prim = new Cesium.GroundPolylinePrimitive({

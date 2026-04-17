@@ -10,7 +10,7 @@ interface ImageryOverlayProps {
 }
 
 interface TooltipData {
-  name: string;
+  names: string[];
   areaText: string;
   screenX: number;
   screenY: number;
@@ -53,7 +53,8 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   const clickHandlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
   const renderListenerRef = useRef<(() => void) | null>(null);
   const loadedForMapRef = useRef<string | null>(null);
-  const selectedIdRef = useRef<string | null>(null);
+  const selectedIdsRef = useRef<Set<string>>(new Set());
+  const multiKeyRef = useRef(false);
   const tooltipWorldPosRef = useRef<Cesium.Cartesian3 | null>(null);
   const cancelledRef = useRef(false);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
@@ -61,6 +62,15 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   const showBasePlanLayers = useMapStore((s) => s.showBasePlanLayers);
   const activeMapId = useMapStore((s) => s.activeMapId);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
+
+  // Track modifier keys from native mouse events on canvas
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return;
+    const canvas = viewer.scene.canvas;
+    const onMouseDown = (e: MouseEvent) => { multiKeyRef.current = e.shiftKey; };
+    canvas.addEventListener('pointerdown', onMouseDown, true);
+    return () => { canvas.removeEventListener('pointerdown', onMouseDown, true); };
+  }, [viewer]);
 
   // Update tooltip screen position on camera move
   const updateTooltipPosition = useCallback(() => {
@@ -76,7 +86,7 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
   const hideTooltip = useCallback(() => {
     setTooltip(null);
     tooltipWorldPosRef.current = null;
-    selectedIdRef.current = null;
+    selectedIdsRef.current.clear();
   }, []);
 
   // Cleanup when map changes
@@ -257,7 +267,7 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
             if (viewer.isDestroyed()) return;
 
             // Pre-compute area + center for each polygon
-            const entityData = new Map<string, { name: string; areaText: string; center: Cesium.Cartesian3 }>();
+            const entityData = new Map<string, { name: string; areaSqM: number; center: Cesium.Cartesian3 }>();
             ds.entities.values.forEach((entity) => {
               if (entity.polygon) {
                 entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
@@ -273,10 +283,8 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
                     lat: Cesium.Math.toDegrees(c.latitude),
                   }));
                   const areaSqM = computePolygonArea(coords);
-                  const areaHa = areaSqM / 10000;
-                  const areaText = areaHa >= 1 ? `${areaHa.toFixed(2)} ha` : `${areaSqM.toFixed(0)} m²`;
                   const center = Cesium.BoundingSphere.fromPoints(h.positions).center;
-                  entityData.set(entity.id, { name: entity.name || 'Unknown', areaText, center });
+                  entityData.set(entity.id, { name: entity.name || 'Unknown', areaSqM, center });
                 }
               }
               if (entity.billboard) entity.billboard.show = new Cesium.ConstantProperty(false);
@@ -298,54 +306,99 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
             viewer.scene.postRender.addEventListener(onPostRender);
             renderListenerRef.current = onPostRender;
 
-            // Click handler — toggle highlight + tooltip
+            // Helper: format area
+            const formatArea = (sqM: number) => {
+              const ha = sqM / 10000;
+              return ha >= 1 ? `${ha.toFixed(2)} ha` : `${sqM.toFixed(0)} m²`;
+            };
+
+            // Helper: update tooltip from current selection
+            const updateSelectionTooltip = () => {
+              const ids = selectedIdsRef.current;
+              if (ids.size === 0) { hideTooltip(); return; }
+
+              const names: string[] = [];
+              let totalArea = 0;
+              let lastCenter: Cesium.Cartesian3 | null = null;
+
+              ids.forEach((id) => {
+                const d = entityData.get(id);
+                if (d) {
+                  names.push(d.name);
+                  totalArea += d.areaSqM;
+                  lastCenter = d.center;
+                }
+              });
+
+              if (lastCenter) {
+                tooltipWorldPosRef.current = lastCenter;
+                const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, lastCenter);
+                if (sp) {
+                  setTooltip({
+                    names,
+                    areaText: formatArea(totalArea),
+                    screenX: sp.x,
+                    screenY: sp.y,
+                    scale: getTooltipScale(viewer),
+                    worldPos: lastCenter,
+                  });
+                }
+              }
+            };
+
+            // Click handler — single select or CTRL+multi-select
             const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
             handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
               const picked = viewer.scene.pick(click.position);
-
-              const resetAll = () => {
-                ds.entities.values.forEach((e) => {
-                  if (e.polygon) {
-                    e.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
-                  }
-                });
-                hideTooltip();
-                viewer.selectedEntity = undefined;
-              };
+              const isMulti = multiKeyRef.current;
 
               if (Cesium.defined(picked) && picked.id) {
                 const entity = picked.id as Cesium.Entity;
                 if (ds.entities.contains(entity) && entity.polygon) {
-                  if (selectedIdRef.current === entity.id) {
-                    resetAll();
+                  const alreadySelected = selectedIdsRef.current.has(entity.id);
+
+                  if (isMulti) {
+                    // CTRL+click: toggle this polygon in/out of selection
+                    if (alreadySelected) {
+                      selectedIdsRef.current.delete(entity.id);
+                      entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                    } else {
+                      selectedIdsRef.current.add(entity.id);
+                      entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.CYAN.withAlpha(0.25));
+                    }
                   } else {
-                    resetAll();
-                    entity.polygon.material = new Cesium.ColorMaterialProperty(
-                      Cesium.Color.CYAN.withAlpha(0.25)
-                    );
-                    const data = entityData.get(entity.id);
-                    if (data) {
-                      tooltipWorldPosRef.current = data.center;
-                      selectedIdRef.current = entity.id;
-                      const sp = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, data.center);
-                      if (sp) {
-                        setTooltip({
-                          name: data.name,
-                          areaText: data.areaText,
-                          screenX: sp.x,
-                          screenY: sp.y,
-                          scale: getTooltipScale(viewer),
-                          worldPos: data.center,
-                        });
-                      }
+                    // Normal click: single select (deselect all others)
+                    if (alreadySelected && selectedIdsRef.current.size === 1) {
+                      // Click same single polygon — deselect
+                      ds.entities.values.forEach((e) => {
+                        if (e.polygon) e.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                      });
+                      selectedIdsRef.current.clear();
+                    } else {
+                      // Select only this one
+                      ds.entities.values.forEach((e) => {
+                        if (e.polygon) e.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                      });
+                      selectedIdsRef.current.clear();
+                      selectedIdsRef.current.add(entity.id);
+                      entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.CYAN.withAlpha(0.25));
                     }
                   }
+
+                  updateSelectionTooltip();
+                  viewer.selectedEntity = undefined;
                   viewer.scene.requestRender();
                   return;
                 }
               }
-              if (selectedIdRef.current) {
-                resetAll();
+
+              // Click outside — deselect all
+              if (selectedIdsRef.current.size > 0) {
+                ds.entities.values.forEach((e) => {
+                  if (e.polygon) e.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
+                });
+                selectedIdsRef.current.clear();
+                hideTooltip();
                 viewer.scene.requestRender();
               }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -457,10 +510,16 @@ export default function ImageryOverlay({ viewer }: ImageryOverlayProps) {
           textAlign: 'center',
           boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
           whiteSpace: 'nowrap',
+          maxWidth: 260,
         }}
       >
-        <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3 }}>{tooltip.name}</div>
-        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>{tooltip.areaText}</div>
+        {tooltip.names.map((name, i) => (
+          <div key={i} style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3 }}>{name}</div>
+        ))}
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2, borderTop: tooltip.names.length > 1 ? '1px solid rgba(255,255,255,0.2)' : 'none', paddingTop: tooltip.names.length > 1 ? 4 : 0 }}>
+          {tooltip.names.length > 1 && <span style={{ opacity: 0.7, marginRight: 4 }}>{tooltip.names.length} {'\u00D7'}</span>}
+          {tooltip.areaText}
+        </div>
       </div>
       {/* Arrow */}
       <div

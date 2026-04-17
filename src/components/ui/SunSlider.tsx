@@ -19,7 +19,8 @@ interface SavedState {
 export default function SunSlider({ viewer }: SunSliderProps) {
   const { t } = useLang();
   const [currentHour, setCurrentHour] = useState(12);
-  const [isSliderVisible, setIsSliderVisible] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [shadowsEnabled, setShadowsEnabled] = useState(false);
   const savedStateRef = useRef<SavedState | null>(null);
 
@@ -116,19 +117,21 @@ export default function SunSlider({ viewer }: SunSliderProps) {
     <>
       <button
         onClick={() => {
-          if (isSliderVisible) {
+          if (isActive) {
             deactivateSunMode();
-            setIsSliderVisible(false);
+            setIsActive(false);
+            setIsPanelVisible(false);
           } else {
-            setIsSliderVisible(true);
+            setIsActive(true);
+            setIsPanelVisible(true);
             activateSunMode();
             updateSunPosition(currentHour);
           }
         }}
         style={{
-          position: 'absolute', bottom: '24px', right: '80px',
+          position: 'absolute', bottom: '24px', right: '170px',
           width: '40px', height: '40px', borderRadius: '50%',
-          background: isSliderVisible ? 'rgba(255,165,0,0.6)' : 'rgba(0,0,0,0.7)',
+          background: isActive ? 'rgba(255,165,0,0.6)' : 'rgba(0,0,0,0.7)',
           backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)',
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1000, transition: 'background 0.2s ease', fontSize: '18px',
@@ -138,7 +141,23 @@ export default function SunSlider({ viewer }: SunSliderProps) {
         {'\u{2600}\u{FE0F}'}
       </button>
 
-      {isSliderVisible && (
+      {isActive && !isPanelVisible && (
+        <button
+          onClick={() => setIsPanelVisible(true)}
+          style={{
+            position: 'absolute', bottom: '80px', right: '24px',
+            padding: '6px 12px', borderRadius: 8,
+            background: 'rgba(255,165,0,0.5)', border: '1px solid rgba(255,255,255,0.2)',
+            color: 'white', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+            zIndex: 1000, backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          {'\u{2600}\u{FE0F}'} {getTimeLabel(currentHour)}
+        </button>
+      )}
+
+      {isPanelVisible && (
         <div style={{
           position: 'absolute', bottom: '80px', right: '24px', width: '280px',
           background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)',
@@ -147,7 +166,21 @@ export default function SunSlider({ viewer }: SunSliderProps) {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>{t('sunPosition')}</span>
-            <span style={{ fontSize: '16px' }}>{getPeriodIcon(currentHour)}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '16px' }}>{getPeriodIcon(currentHour)}</span>
+              <button
+                onClick={() => setIsPanelVisible(false)}
+                style={{
+                  width: 20, height: 20, borderRadius: '50%', border: 'none',
+                  background: 'rgba(255,255,255,0.15)', color: 'white',
+                  fontSize: 12, cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                }}
+                title="Minimize"
+              >
+                &#x2212;
+              </button>
+            </div>
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '12px' }}>

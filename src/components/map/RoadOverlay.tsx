@@ -37,17 +37,22 @@ export default function RoadOverlay({ viewer }: RoadOverlayProps) {
             const cesiumColor = Cesium.Color.fromCssColorString(color).withAlpha(0.9);
 
             // Create one primitive per color with material
-            const instances: Cesium.GeometryInstance[] = polylines.map((pts, i) =>
-              new Cesium.GeometryInstance({
-                geometry: new Cesium.GroundPolylineGeometry({
-                  positions: pts.map(([lon, lat]) =>
-                    Cesium.Cartesian3.fromDegrees(lon, lat)
-                  ),
-                  width: 3.0,
-                }),
-                id: `road-${color}-${i}`,
+            const instances: Cesium.GeometryInstance[] = polylines
+              .filter((pts) => pts.length >= 2)
+              .map((pts, i) => {
+                try {
+                  return new Cesium.GeometryInstance({
+                    geometry: new Cesium.GroundPolylineGeometry({
+                      positions: pts.map(([lon, lat]) =>
+                        Cesium.Cartesian3.fromDegrees(lon, lat)
+                      ),
+                      width: 3.0,
+                    }),
+                    id: `road-${color}-${i}`,
+                  });
+                } catch { return null; }
               })
-            );
+              .filter(Boolean) as Cesium.GeometryInstance[];
 
             if (instances.length === 0) continue;
 

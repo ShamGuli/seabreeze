@@ -23,7 +23,7 @@ async function fetchIonAssetIds(token: string): Promise<number[]> {
 
   const data = await res.json();
   const ids: number[] = (data.items ?? [])
-    .filter((item: any) => item.type === '3DTILES' && item.id > 4000000)
+    .filter((item: any) => item.type === '3DTILES' && item.id > 4000000 && item.status === 'COMPLETE')
     .map((item: any) => {
       console.log(`Ion asset: [${item.id}] ${item.name}`);
       return item.id as number;
@@ -81,12 +81,14 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
         (async () => {
           const allAssets: { assetId: number; token: string }[] = [];
 
+          const excludeIds = new Set(config.excludeAssetIds ?? []);
+
           await Promise.all(
             config.tilesetTokenKeys.map(async (key) => {
               const token = getToken(key);
               if (!token) return;
               const ids = await fetchIonAssetIds(token);
-              ids.forEach((id) => allAssets.push({ assetId: id, token }));
+              ids.filter((id) => !excludeIds.has(id)).forEach((id) => allAssets.push({ assetId: id, token }));
             })
           );
 
@@ -98,13 +100,14 @@ export default function BuildingLoader({ viewer }: BuildingLoaderProps) {
                   accessToken: token,
                 });
                 const tileset = await Cesium.Cesium3DTileset.fromUrl(resource, {
-                  maximumScreenSpaceError: 24,
+                  maximumScreenSpaceError: 32,
                   skipLevelOfDetail: true,
                   baseScreenSpaceError: 1024,
                   skipScreenSpaceErrorFactor: 16,
                   skipLevels: 1,
                   immediatelyLoadDesiredLevelOfDetail: false,
                   loadSiblings: false,
+                  cullWithChildrenBounds: true,
                 });
 
                 if (HEIGHT_OFFSET !== 0) {

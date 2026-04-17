@@ -38,7 +38,6 @@ export default function CesiumMap() {
   const setIsMapTransitioning = useMapStore((s) => s.setIsMapTransitioning);
   const is3D = useMapStore((s) => s.is3D);
   const showBasePlan = useMapStore((s) => s.showBasePlan);
-  const showZone = useMapStore((s) => s.showZone);
   const activeMapId = useMapStore((s) => s.activeMapId);
   const activeConfig = getMapConfig(activeMapId);
 
@@ -70,6 +69,7 @@ export default function CesiumMap() {
     });
 
     v.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+    (v.cesiumWidget as any).showRenderLoopErrors = false;
 
     (async () => {
       const provider = await Cesium.IonImageryProvider.fromAssetId(3830182);
@@ -177,11 +177,11 @@ export default function CesiumMap() {
     });
   }, [viewer, activeMapId]);
 
-  // ── Charvak terrain: Base Plan or Zone = real relief, 3D = flat ──
+  // ── Charvak terrain: Base Plan = real relief, 3D = flat ──
   useEffect(() => {
     if (!viewer || viewer.isDestroyed() || activeMapId !== 'charvak') return;
 
-    if (showBasePlan || showZone) {
+    if (showBasePlan) {
       Cesium.createWorldTerrainAsync({ requestWaterMask: false, requestVertexNormals: false }).then((terrain) => {
         if (!viewer.isDestroyed()) {
           viewer.terrainProvider = terrain;
@@ -192,7 +192,7 @@ export default function CesiumMap() {
       viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
       viewer.scene.requestRender();
     }
-  }, [viewer, activeMapId, showBasePlan, showZone]);
+  }, [viewer, activeMapId, showBasePlan]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
