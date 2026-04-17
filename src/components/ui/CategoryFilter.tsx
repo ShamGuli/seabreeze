@@ -86,6 +86,8 @@ export default function CategoryFilter() {
   const toggleZone = useMapStore((s) => s.toggleZone);
   const show3DZone = useMapStore((s) => s.show3DZone);
   const toggle3DZone = useMapStore((s) => s.toggle3DZone);
+  const showGpon = useMapStore((s) => s.showGpon);
+  const toggleGpon = useMapStore((s) => s.toggleGpon);
 
   // ═══ 3D MODE (Charvak — Zone toggle on flat) ═══
   if (is3D && activeMapId === 'charvak') {
@@ -176,6 +178,24 @@ export default function CategoryFilter() {
 
         {/* ── Separator ── */}
         <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+
+        {/* GPON toggle */}
+        <button
+          onClick={toggleGpon}
+          className="glow-btn"
+          style={{
+            padding: '4px 10px', borderRadius: 12,
+            border: 'none',
+            background: showGpon ? '#F97316' : '#6B7280',
+            color: '#fff',
+            fontSize: 10, fontWeight: 600, cursor: 'pointer',
+            whiteSpace: 'nowrap' as const,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2v6m0 8v6M2 12h6m8 0h6" /><circle cx="12" cy="12" r="3" /></svg>
+          {t('btnGpon')}
+        </button>
 
         {/* Ortho toggle */}
         <button

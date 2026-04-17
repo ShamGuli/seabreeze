@@ -81,6 +81,7 @@ export const T: TranslationMap = {
   btnLines:  { az: 'Xəttlər', ru: 'Линии',  en: 'Lines'  },
   btnWells:  { az: 'Quyular', ru: 'Колодцы', en: 'Wells'  },
   btnZone:   { az: 'Zona',    ru: 'Зона',    en: 'Zone'   },
+  btnGpon:   { az: 'IT-FO',   ru: 'IT-FO',   en: 'IT-FO'  },
 
   // ── Communication groups ──
   commElektrik:      { az: 'Elektrik',      ru: 'Электрика',       en: 'Electricity'    },

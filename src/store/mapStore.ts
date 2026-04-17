@@ -28,6 +28,7 @@ interface MapState {
   showRoads: boolean;
   showZone: boolean;
   show3DZone: boolean;
+  showGpon: boolean;
   setActiveMap: (mapId: string) => void;
   setIsMapTransitioning: (val: boolean) => void;
   setMapBuildings: (buildings: Building[]) => void;
@@ -50,6 +51,7 @@ interface MapState {
   toggleRoads: () => void;
   toggleZone: () => void;
   toggle3DZone: () => void;
+  toggleGpon: () => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -74,6 +76,7 @@ export const useMapStore = create<MapState>((set) => ({
   showRoads: false,
   showZone: false,
   show3DZone: false,
+  showGpon: false,
   setActiveMap: (mapId) => {
     set({
       activeMapId: mapId,
@@ -121,4 +124,5 @@ export const useMapStore = create<MapState>((set) => ({
   toggleRoads: () => set((s) => ({ showRoads: !s.showRoads })),
   toggleZone: () => set((s) => ({ showZone: !s.showZone })),
   toggle3DZone: () => set((s) => ({ show3DZone: !s.show3DZone })),
+  toggleGpon: () => set((s) => ({ showGpon: !s.showGpon })),
 }));
